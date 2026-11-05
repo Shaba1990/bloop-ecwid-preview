@@ -16,9 +16,20 @@
 <meta name="theme-color" content="#2C2A26">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/style.css?v=20261105g">
+<link rel="stylesheet" href="assets/style.css?v=20261105h">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://bloopifyhub.com/"},{"@type":"ListItem","position":2,"name":"Contact"}]}</script>
 </head>
 <body data-page="contact"><main class="w"><div class="crumb"><a href="index.html">Home</a> › Contact</div><div class="ph"><div><h1>Contact us</h1><p>We're happy to help with products, orders and shipping.</p></div></div>
 <div class="two" style="align-items:start"><div class="cbox" style="grid-template-columns:1fr;margin:0"><div><span class="ti">📞</span><h4>Phone</h4><p><a href="tel:+18155054387">+1-815-505-4387</a></p></div><div><span class="ti">✉️</span><h4>Email</h4><p><a href="mailto:bloop.store25@gmail.com">bloop.store25@gmail.com</a></p></div><div><span class="ti">📍</span><h4>Chicago, IL</h4><p>Mon–Fri 9 AM–5 PM CT · Sat 9 AM–12 PM CT<br>Same-day shipping on orders before 3 PM CT.</p></div></div>
-<form class="form" onsubmit="toast('Message sent (preview only)');return false"><input placeholder="Name"><input placeholder="Email"><input placeholder="Order number (optional)"><textarea placeholder="How can we help?"></textarea><button class="btn" style="border:0;justify-self:start">Send message</button></form></div></main><script src="assets/products.js?v=20261105g"></script><script src="assets/site.js?v=20261105g"></script><script src="assets/ecwid-map.js?v=20261105g"></script><script src="assets/ecwid.js?v=20261105g"></script></body></html>
+<form class="form" action="https://formsubmit.co/bloop.store25@gmail.com" method="POST">
+<input type="hidden" name="_subject" value="New message from bloopifyhub.com">
+<input type="hidden" name="_template" value="table">
+<input type="hidden" name="_captcha" value="false">
+<input type="hidden" name="_next" value="https://bloopifyhub.com/contact.html?sent=1">
+<input name="name" placeholder="Name" autocomplete="name" required>
+<input type="email" name="email" placeholder="Email" autocomplete="email" required>
+<input name="order" placeholder="Order number (optional)" autocomplete="off">
+<textarea name="message" placeholder="How can we help?" required></textarea>
+<button class="btn" type="submit" style="border:0;justify-self:start">Send message</button>
+</form></div></main><script src="assets/products.js?v=20261105h"></script><script src="assets/site.js?v=20261105h"></script><script src="assets/ecwid-map.js?v=20261105h"></script><script src="assets/ecwid.js?v=20261105h"></script>
+<script>if(new URLSearchParams(location.search).get('sent')==='1'){history.replaceState({},'',location.pathname);toast('Message sent — we’ll reply soon.');}</script></body></html>

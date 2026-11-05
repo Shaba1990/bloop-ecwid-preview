@@ -1,13 +1,19 @@
 // Real Ecwid cart (store 138742751). Replaces the old localStorage demo bag.
 (function(){
 var SID=138742751;window.ecwid_script_defer=true;window.ecwid_dynamic_widgets=true;
-var s=document.createElement('script');s.src='https://app.ecwid.com/script.js?'+SID+'&data_platform=code&data_date=2026-11-04';s.charset='utf-8';
-s.onload=function(){window.Ecwid&&Ecwid.init&&Ecwid.init();if(document.getElementById('my-store-'+SID)&&window.xProductBrowser){xProductBrowser('categoriesPerRow=3','views=grid(20,3) list(60) table(60)','categoryView=grid','searchView=list','id=my-store-'+SID);}};
+var s=document.createElement('script');s.src='https://app.ecwid.com/script.js?'+SID+'&data_platform=code&data_date=2026-11-04';s.charset='utf-8';s.async=true;
+function bootStore(){window.Ecwid&&Ecwid.init&&Ecwid.init();if(document.getElementById('my-store-'+SID)&&window.xProductBrowser){xProductBrowser('categoriesPerRow=3','views=grid(20,3) list(60) table(60)','categoryView=grid','searchView=list','id=my-store-'+SID);}}
+s.onload=bootStore;
+s.onerror=function(){console.warn('Ecwid script failed to load');};
 document.head.appendChild(s);
 function setBag(n){var e=document.getElementById('bag');if(e)e.textContent=n;}
 function ready(){return window.Ecwid&&Ecwid.Cart&&Ecwid.Cart.addProduct;}
 window.bagN=function(){return 0};setBag(0);
-var poll=setInterval(function(){if(!window.Ecwid||!Ecwid.OnAPILoaded)return;clearInterval(poll);
+// Poll for Ecwid API, but give up after ~12s so a hung CDN never blocks the page forever.
+var pollTries=0,poll=setInterval(function(){
+  pollTries++;
+  if(pollTries>60){clearInterval(poll);return;}
+  if(!window.Ecwid||!Ecwid.OnAPILoaded)return;clearInterval(poll);
  Ecwid.OnAPILoaded.add(function(){Ecwid.Cart.get(function(c){setBag(c.productsQuantity)});
   Ecwid.OnCartChanged.add(function(c){setBag(c.productsQuantity)});
   // Account label: "Account" when an Ecwid customer is signed in
@@ -64,11 +70,15 @@ function showGallery(){var main=document.getElementById('pim'),th=document.getEl
 (function(){
   function isBrowse(el){if(!el||!el.closest)return null;var b=el.closest('button,.form-control__button,a,[role=button]');if(!b)return null;var t=(b.innerText||b.textContent||'').replace(/\s+/g,' ').trim();return /^(browse store|continue shopping)$/i.test(t)?b:null}
   document.addEventListener('click',function(ev){var b=isBrowse(ev.target);if(!b)return;ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();location.href='shop.html'},true);
-  function inject(){var wrap=document.querySelector('.ec-cart--empty .ec-cart__button');if(!wrap||wrap.dataset.bloopShop)return;wrap.dataset.bloopShop='1';
+  var injecting=false;
+  function inject(){if(injecting)return;var wrap=document.querySelector('.ec-cart--empty .ec-cart__button');if(!wrap||wrap.dataset.bloopShop)return;injecting=true;
+    wrap.dataset.bloopShop='1';
     wrap.querySelectorAll('button,.form-control').forEach(function(n){n.style.display='none'});
     var a=document.createElement('a');a.href='shop.html';a.className='btn bloop-browse';a.textContent='Browse Store';a.style.cssText='display:inline-flex;align-items:center;justify-content:center;padding:12px 28px;border-radius:26px;background:var(--ink,#111);color:#fff;text-decoration:none;font:600 14px/1 inherit';
-    wrap.appendChild(a);}
-  var mo=new MutationObserver(inject);mo.observe(document.body,{childList:true,subtree:true});
+    wrap.appendChild(a);injecting=false;}
+  var injT=null;
+  var mo=new MutationObserver(function(){if(injT)return;injT=setTimeout(function(){injT=null;inject();},80);});
+  mo.observe(document.body,{childList:true,subtree:true});
   if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(){setTimeout(inject,50)});
   // If Ecwid still opens its category home from an empty-cart browse, bounce to Shop All
   if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(pg){if(!pg)return;if((pg.type==='CATEGORY'||pg.type==='CATEGORIES')&&/cart\.html/i.test(location.pathname||'')&&!(location.hash||'').match(/product|checkout|account|favorites|order/i)){location.replace('shop.html')}});
@@ -91,16 +101,21 @@ function favWrite(ids){
   document.cookie=FAV_KEY+'='+encodeURIComponent(val)+';path=/;max-age='+maxAge+';SameSite=Lax';
   document.cookie=FAV_EXP+'='+encodeURIComponent(String(exp))+';path=/;max-age='+maxAge+';SameSite=Lax';
 }
+var favPainting=false;
 function favPaint(){
-  var set={};favRead().forEach(function(id){set[id]=1});
-  var M=window.ECWID_MAP||{};
-  document.querySelectorAll('[data-fav]').forEach(function(a){
-    var m=M[a.dataset.fav],on=!!(m&&set[m.id]);
-    a.classList.toggle('on',on);
-    a.setAttribute('aria-pressed',on?'true':'false');
-    a.title=on?'Remove from wishlist':'Save to wishlist';
-    if(!a.querySelector('svg'))a.textContent=on?'♥':'♡';
-  });
+  if(favPainting)return;favPainting=true;
+  try{
+    var set={};favRead().forEach(function(id){set[id]=1});
+    var M=window.ECWID_MAP||{};
+    document.querySelectorAll('[data-fav]').forEach(function(a){
+      var m=M[a.dataset.fav],on=!!(m&&set[m.id]);
+      var want=on?'true':'false',wantTitle=on?'Remove from wishlist':'Save to wishlist',wantGlyph=on?'♥':'♡';
+      if(a.classList.contains('on')!==on)a.classList.toggle('on',on);
+      if(a.getAttribute('aria-pressed')!==want)a.setAttribute('aria-pressed',want);
+      if(a.title!==wantTitle)a.title=wantTitle;
+      if(!a.querySelector('svg')&&a.textContent!==wantGlyph)a.textContent=wantGlyph;
+    });
+  }finally{favPainting=false;}
 }
 window.toggleFav=function(sku,el){
   var m=(window.ECWID_MAP||{})[sku];
@@ -122,32 +137,51 @@ document.addEventListener('click',function(ev){
   window.toggleFav(a.dataset.fav,a);
 },true);
 favPaint();
-new MutationObserver(function(){favPaint()}).observe(document.documentElement,{childList:true,subtree:true});
-// re-paint after any client-side re-render (e.g. sort change)
-new MutationObserver(function(){if(Object.keys(SOLD).length)paint()}).observe(document.body,{childList:true,subtree:true});
+// Debounced observers — never mutate while already painting (textContent writes are childList)
+var favT=null,paintT=null;
+new MutationObserver(function(){
+  if(favPainting)return;
+  if(favT)return;favT=setTimeout(function(){favT=null;favPaint();},100);
+}).observe(document.documentElement,{childList:true,subtree:true});
+new MutationObserver(function(){
+  if(!Object.keys(SOLD).length)return;
+  if(paintT)return;paintT=setTimeout(function(){paintT=null;paint();},120);
+}).observe(document.body,{childList:true,subtree:true});
 })();
 
 (function hideLightspeed(){
+  var done=false,mo=null,tick=null;
   function zap(){
+    if(done)return;
+    var hit=false;
     document.querySelectorAll('.ec-footer, .ec-store__footer, a[href*="lightspeedhq.com"], a[href*="www.ecwid.com"], a[href*="ecwid.com"]').forEach(function(el){
       var t=(el.textContent||'').toLowerCase();
       if(el.matches('.ec-footer, .ec-store__footer') || /powered|lightspeed|ecwid/.test(t)){
         var n=el.closest('.ec-footer, .ec-store__footer')||el;
-        n.style.setProperty('display','none','important');
+        if(n.style.display!=='none'){n.style.setProperty('display','none','important');hit=true;}
       }
     });
-    document.querySelectorAll('div,a,span').forEach(function(el){
+    // Narrow scan: only footer-ish / powered-by candidates, not every div/a/span
+    document.querySelectorAll('.ec-footer *, .ec-store__footer *, [class*="powered"], [class*="footer"] a, [class*="footer"] span').forEach(function(el){
       if(el.childElementCount>2)return;
       var t=(el.textContent||'').trim().toLowerCase();
       if(t==='powered by lightspeed'||t==='powered by ecwid'||t==='made with ecwid by lightspeed'){
-        el.style.setProperty('display','none','important');
+        if(el.style.display!=='none'){el.style.setProperty('display','none','important');hit=true;}
       }
     });
+    if(hit){
+      done=true;
+      if(tick){clearInterval(tick);tick=null;}
+      if(mo){mo.disconnect();mo=null;}
+    }
   }
+  var zapT=null;
+  function schedule(){if(done||zapT)return;zapT=setTimeout(function(){zapT=null;zap();},100);}
   zap();
-  var mo=new MutationObserver(zap);
+  mo=new MutationObserver(schedule);
   if(document.body)mo.observe(document.body,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded',zap);
-  setInterval(zap,1500);
+  // Brief fallback interval; stop after ~30s or once badge is gone
+  var ticks=0;
+  tick=setInterval(function(){ticks++;zap();if(done||ticks>=20){clearInterval(tick);tick=null;if(mo){mo.disconnect();mo=null;}}},1500);
 })();
-

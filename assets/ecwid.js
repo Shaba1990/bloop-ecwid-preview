@@ -78,3 +78,28 @@ document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.targe
 // re-paint after any client-side re-render (e.g. sort change)
 new MutationObserver(function(){if(Object.keys(SOLD).length)paint()}).observe(document.body,{childList:true,subtree:true});
 })();
+
+(function hideLightspeed(){
+  function zap(){
+    document.querySelectorAll('.ec-footer, .ec-store__footer, a[href*="lightspeedhq.com"], a[href*="www.ecwid.com"], a[href*="ecwid.com"]').forEach(function(el){
+      var t=(el.textContent||'').toLowerCase();
+      if(el.matches('.ec-footer, .ec-store__footer') || /powered|lightspeed|ecwid/.test(t)){
+        var n=el.closest('.ec-footer, .ec-store__footer')||el;
+        n.style.setProperty('display','none','important');
+      }
+    });
+    document.querySelectorAll('div,a,span').forEach(function(el){
+      if(el.childElementCount>2)return;
+      var t=(el.textContent||'').trim().toLowerCase();
+      if(t==='powered by lightspeed'||t==='powered by ecwid'||t==='made with ecwid by lightspeed'){
+        el.style.setProperty('display','none','important');
+      }
+    });
+  }
+  zap();
+  var mo=new MutationObserver(zap);
+  if(document.body)mo.observe(document.body,{childList:true,subtree:true});
+  document.addEventListener('DOMContentLoaded',zap);
+  setInterval(zap,1500);
+})();
+

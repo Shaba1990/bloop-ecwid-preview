@@ -31,7 +31,8 @@ function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTim
 const rail=(id,a,rank)=>{const e=$(id);if(e)e.innerHTML=a.map((p,i)=>card(p,i,rank)).join('')};
 // category / shop pages
 const CAT={shop:null,skincare:'SkinCare',lido:'Lido Creams',devices:'Devices',treatments:'Treatments'};
-if($('plist')){let base=CAT[PAGE]?inC(CAT[PAGE]):P.slice();const q=new URLSearchParams(location.search).get('q');
+if($('plist')){let base=CAT[PAGE]?inC(CAT[PAGE]):P.slice();const q=new URLSearchParams(location.search).get('q');const cat=new URLSearchParams(location.search).get('cat');
+ if(cat){base=inC(cat);const qi=$('qinfo');if(qi)qi.textContent=cat}
  if(q){base=base.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));$('qinfo').textContent=`Results for “${q}”`}
  const ps=new URLSearchParams(location.search).get('sort');if(ps)$('sort').value=ps;const draw=()=>{let a=base.slice();const s=$('sort').value;if(s=='lo')a.sort((x,y)=>x.price-y.price);if(s=='hi')a.sort((x,y)=>y.price-x.price);if(s=='new')a.sort((x,y)=>y.cats.includes('New')-x.cats.includes('New'));
  $('cnt').textContent=a.length+' products';$('plist').innerHTML=a.map(p=>card(p)).join('')||'<p>No products found.</p>'};$('sort').onchange=draw;draw()}

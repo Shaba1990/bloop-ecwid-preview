@@ -38,7 +38,7 @@ if($('plist')){let base=CAT[PAGE]?inC(CAT[PAGE]):P.slice();const q=new URLSearch
  $('cnt').textContent=a.length+' products';$('plist').innerHTML=a.map(p=>card(p)).join('')||'<p>No products found.</p>'};$('sort').onchange=draw;draw()}
 // home
 if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
- $('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105i" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+ $('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105j" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
  const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
  $('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
  rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));

@@ -83,7 +83,10 @@ function showGallery(){var main=document.getElementById('pim'),th=document.getEl
   // If Ecwid still opens its category home from an empty-cart browse, bounce to Shop All
   if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(pg){if(!pg)return;if((pg.type==='CATEGORY'||pg.type==='CATEGORIES')&&/cart\.html/i.test(location.pathname||'')&&!(location.hash||'').match(/product|checkout|account|favorites|order/i)){location.replace('shop.html')}});
 })();
-// Wishlist hearts: toggle Ecwid favorites (cookie/localStorage PSecwid__{store}PSfavorites).
+// Wishlist hearts: sync Ecwid favorites.
+// Ecwid persists as localStorage/cookie key PSecwid__{store}PSfavorites (underscores doubled)
+// with JSON value {"productIds":[...]} — NOT a bare array. Empty list clears the key.
+// Prefer Ecwid.Headless.addFavorite/removeFavorite when the JS API is up (server sync for signed-in).
 var FAV_KEY='PSecwid__'+SID+'PSfavorites',FAV_EXP=FAV_KEY+'_expire';
 function favRead(){
   var raw=null;
@@ -91,15 +94,42 @@ function favRead(){
   if(!raw){try{var m=document.cookie.match(new RegExp('(?:^|; )'+FAV_KEY.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'=([^;]*)'));if(m)raw=decodeURIComponent(m[1])}catch(e){}}
   if(!raw)return [];
   try{var v=JSON.parse(raw);if(Array.isArray(v))return v.map(Number).filter(Boolean);
-    if(v&&typeof v==='object'){var a=v.ids||v.productIds||v.favorites||v.items;if(Array.isArray(a))return a.map(function(x){return Number(x&&x.id||x)}).filter(Boolean)}}
+    if(v&&typeof v==='object'){var a=v.productIds||v.ids||v.favorites||v.items;if(Array.isArray(a))return a.map(function(x){return Number(x&&x.id||x)}).filter(Boolean)}}
   catch(e){return String(raw).split(/[,\s]+/).map(Number).filter(Boolean)}
   return [];
 }
 function favWrite(ids){
-  var val=JSON.stringify(ids),exp=Date.now()+365*24*3600*1000,maxAge=365*24*3600;
-  try{localStorage.setItem(FAV_KEY,val);localStorage.setItem(FAV_EXP,String(exp))}catch(e){}
-  document.cookie=FAV_KEY+'='+encodeURIComponent(val)+';path=/;max-age='+maxAge+';SameSite=Lax';
-  document.cookie=FAV_EXP+'='+encodeURIComponent(String(exp))+';path=/;max-age='+maxAge+';SameSite=Lax';
+  // Ecwid reads e.value?.productIds — bare [id] arrays are ignored → empty wishlist.
+  var uniq=[],seen={};ids.forEach(function(id){id=Number(id);if(id&&!seen[id]){seen[id]=1;uniq.push(id)}});
+  var maxAge=365*24*3600,expDate=new Date(Date.now()+maxAge*1000),expStr=expDate.toUTCString();
+  if(!uniq.length){
+    try{localStorage.removeItem(FAV_KEY);localStorage.removeItem(FAV_EXP)}catch(e){}
+    document.cookie=FAV_KEY+'=;path=/;max-age=0;SameSite=Lax';
+    document.cookie=FAV_EXP+'=;path=/;max-age=0;SameSite=Lax';
+  }else{
+    var val=JSON.stringify({productIds:uniq});
+    try{localStorage.setItem(FAV_KEY,val);localStorage.setItem(FAV_EXP,expStr)}catch(e){}
+    document.cookie=FAV_KEY+'='+encodeURIComponent(val)+';path=/;max-age='+maxAge+';SameSite=Lax';
+    document.cookie=FAV_EXP+'='+encodeURIComponent(expStr)+';path=/;max-age='+maxAge+';SameSite=Lax';
+  }
+  // Push into Ecwid's live persistence layer when available (keeps Favorites page in sync without reload races).
+  try{
+    if(window.Ecwid&&Ecwid.setStorageValue){
+      Ecwid.setStorageValue('CUSTOMER_SESSION','CUSTOMER_FAVORITES',uniq.length?{productIds:uniq}:null);
+    }
+  }catch(e){}
+  return uniq;
+}
+// One-shot migrate: rewrite legacy bare-array favorites into Ecwid's {productIds} shape.
+(function migrateFavFormat(){
+  try{
+    var raw=localStorage.getItem(FAV_KEY);if(!raw)return;
+    var v=JSON.parse(raw);
+    if(Array.isArray(v))favWrite(v.map(Number).filter(Boolean));
+  }catch(e){}
+})();
+function favApiReady(){
+  try{return !!(window.Ecwid&&Ecwid.Headless&&typeof Ecwid.Headless.addFavorite==='function'&&typeof Ecwid.Headless.removeFavorite==='function')}catch(e){return false}
 }
 var favPainting=false;
 function favPaint(){
@@ -119,16 +149,32 @@ function favPaint(){
 }
 window.toggleFav=function(sku,el){
   var m=(window.ECWID_MAP||{})[sku];
-  if(!m){toast('This item is not in the online store yet');return;}
-  var ids=favRead(),i=ids.indexOf(m.id),adding=i<0;
-  if(adding)ids.push(m.id);else ids.splice(i,1);
+  if(!m||!m.id){toast('This item is not in the online store yet');return;}
+  var pid=Number(m.id);
+  if(!pid){toast('This item is not in the online store yet');return;}
+  var ids=favRead(),i=ids.indexOf(pid),adding=i<0;
+  if(adding)ids.push(pid);else ids.splice(i,1);
   favWrite(ids);favPaint();
-  if(el){el.classList.toggle('on',adding);el.textContent=adding?'♥':'♡';el.setAttribute('aria-pressed',adding?'true':'false')}
+  if(el){el.classList.toggle('on',adding);el.textContent=adding?'♥':'♡';el.setAttribute('aria-pressed',adding?'true':'false');el.title=adding?'Remove from wishlist':'Save to wishlist'}
   toast(adding?'Saved to wishlist':'Removed from wishlist');
-  // Guests: after add, send to Ecwid favorites so sign-in / sync can happen
+  // Official Headless API: updates guest local favorites AND signed-in server favorites.
+  if(favApiReady()){
+    try{
+      var p=adding?Ecwid.Headless.addFavorite(pid):Ecwid.Headless.removeFavorite(pid);
+      if(p&&typeof p.then==='function')p.then(function(st){
+        if(st&&Array.isArray(st.productIds))favWrite(st.productIds);
+        favPaint();
+      }).catch(function(){/* storage fallback already written */});
+    }catch(e){}
+  }
+  // After first save, open Ecwid Favorites so the shopper sees the item (storage format now matches).
   if(adding){
-    var go=function(cu){if(!cu)location.href='cart.html#!/~/favorites'};
-    try{if(window.Ecwid&&Ecwid.Customer&&Ecwid.Customer.get)Ecwid.Customer.get(go);else go(null)}catch(e){go(null)}
+    setTimeout(function(){
+      try{
+        if(window.Ecwid&&Ecwid.openPage){location.href='cart.html#!/~/favorites';return}
+      }catch(e){}
+      location.href='cart.html#!/~/favorites';
+    },120);
   }
 };
 document.addEventListener('click',function(ev){

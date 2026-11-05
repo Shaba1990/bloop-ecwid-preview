@@ -60,6 +60,19 @@ function showGallery(){var main=document.getElementById('pim'),th=document.getEl
  .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var h=clean(d.text||'');if(!h.replace(/<[^>]+>|&nbsp;|\s/g,''))throw 0;
   if(d.title){document.getElementById('ltitle').textContent=d.title;document.title=d.title+' — Bloop';}box.innerHTML=h;})
  .catch(function(){box.innerHTML='<p class="muted">This policy could not be loaded right now. Please refresh, or contact us at +1-815-505-4387 or bloop.store25@gmail.com.</p>'});})();
+// Empty-cart "Browse Store" / "Continue shopping" → our Shop All, not Ecwid's catalog.
+(function(){
+  function isBrowse(el){if(!el||!el.closest)return null;var b=el.closest('button,.form-control__button,a,[role=button]');if(!b)return null;var t=(b.innerText||b.textContent||'').replace(/\s+/g,' ').trim();return /^(browse store|continue shopping)$/i.test(t)?b:null}
+  document.addEventListener('click',function(ev){var b=isBrowse(ev.target);if(!b)return;ev.preventDefault();ev.stopPropagation();if(ev.stopImmediatePropagation)ev.stopImmediatePropagation();location.href='shop.html'},true);
+  function inject(){var wrap=document.querySelector('.ec-cart--empty .ec-cart__button');if(!wrap||wrap.dataset.bloopShop)return;wrap.dataset.bloopShop='1';
+    wrap.querySelectorAll('button,.form-control').forEach(function(n){n.style.display='none'});
+    var a=document.createElement('a');a.href='shop.html';a.className='btn bloop-browse';a.textContent='Browse Store';a.style.cssText='display:inline-flex;align-items:center;justify-content:center;padding:12px 28px;border-radius:26px;background:var(--ink,#111);color:#fff;text-decoration:none;font:600 14px/1 inherit';
+    wrap.appendChild(a);}
+  var mo=new MutationObserver(inject);mo.observe(document.body,{childList:true,subtree:true});
+  if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(){setTimeout(inject,50)});
+  // If Ecwid still opens its category home from an empty-cart browse, bounce to Shop All
+  if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(pg){if(!pg)return;if((pg.type==='CATEGORY'||pg.type==='CATEGORIES')&&/cart\.html/i.test(location.pathname||'')&&!(location.hash||'').match(/product|checkout|account|favorites|order/i)){location.replace('shop.html')}});
+})();
 // Wishlist hearts on cards open the Ecwid product view where "Add to favorites" lives.
 document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('[data-fav]');if(!a)return;var m=(window.ECWID_MAP||{})[a.dataset.fav];if(!m)return;ev.preventDefault();location.href='cart.html#!/~/product/id='+m.id;});
 // re-paint after any client-side re-render (e.g. sort change)

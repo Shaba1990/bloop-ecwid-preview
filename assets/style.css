@@ -75,6 +75,20 @@ nav a.on{color:var(--pink)}
 .addb{margin-top:auto;width:100%;background:#fff;color:var(--ink);border:1px solid var(--ink);border-radius:22px;padding:10px;font:600 13px Montserrat,sans-serif;cursor:pointer;transition:.15s}.addb:hover{background:var(--ink);color:#fff}
 .qa{display:none!important}
 .qty{flex-wrap:wrap;align-items:stretch}.qty .btn{min-width:200px;padding:14px 20px}
+.qty .btn:disabled{opacity:.5;cursor:not-allowed}
+a.addb{display:block;text-align:center;text-decoration:none}
+.popts{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+.popt{border:0;margin:0;padding:0;min-width:0}
+.popt .ol,.popt legend{display:block;width:100%;font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--g);margin:0 0 8px;padding:0}
+.popt .req{color:#7C8643;font-style:normal}
+.popt select,.popt input[type=text],.popt input[type=date],.popt textarea{width:100%;border:1px solid var(--l);border-radius:12px;padding:12px 14px;font:inherit;font-size:14px;background:#fff;color:var(--ink)}
+.popt textarea{min-height:80px;resize:vertical}
+.popt .choices{display:flex;flex-wrap:wrap;gap:8px}
+.popt .choices label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--l);border-radius:22px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;background:#fff}
+.popt .choices label:has(input:checked){border-color:var(--ink);background:var(--ink);color:#fff}
+.popt .choices input{margin:0;accent-color:var(--ink)}
+.popt .choices label:has(input:checked) input{accent-color:#fff}
+.popts .muted{font-size:13px;color:#999}
 @media(max-width:900px){.logo img{height:28px}.addb{padding:9px;font-size:12px}.qty .btn{min-width:0}}
 /* brand book: Comfortaa headings, Montserrat body, charcoal/olive/sage */
 h1,h2,h3,.sh h2,.ph h1,.hero h1{font-family:Comfortaa,sans-serif;font-weight:700;letter-spacing:-.01em}

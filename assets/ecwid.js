@@ -23,20 +23,95 @@ var pollTries=0,poll=setInterval(function(){
    var n={ACCOUNT:'My account',ACCOUNT_SETTINGS:'My account',ORDERS:'My orders',FAVORITES:'Wishlist',SIGN_IN:'Sign in',RESET_PASSWORD:'Sign in',PRODUCT:'Product',CART:'Bag & checkout'}[pg.type];
    if(n)t.textContent=n;});
   if(document.body.dataset.page==='cart'&&!location.hash)Ecwid.openPage('cart');});},200);
-window.add=function(sku,qty){var m=(window.ECWID_MAP||{})[sku];qty=Math.max(1,parseInt(qty)||1);
+function readSelection(sku){
+ var box=document.getElementById('popts');
+ if(!box||box.getAttribute('data-sku')!==String(sku))return null;
+ var fields=box.querySelectorAll('[data-opt]');
+ if(!fields.length)return null;
+ var map={},ok=true,missing='';
+ [].forEach.call(fields,function(el){
+  var name=el.getAttribute('data-opt');
+  var type=(el.getAttribute('data-type')||'').toUpperCase();
+  var req=el.getAttribute('data-required')==='1';
+  if(type==='CHECKBOX'||type==='CHECKBOXES'){
+   var arr=[];
+   [].forEach.call(el.querySelectorAll('input:checked'),function(i){arr.push(i.value)});
+   if(req&&!arr.length){ok=false;if(!missing)missing=name;}
+   if(arr.length)map[name]=arr;
+   return;
+  }
+  var val='';
+  if(type==='RADIO'||type==='SIZE'||type==='SWATCHES'||type==='COLOR'){
+   var r=el.querySelector('input:checked');val=r?r.value:'';
+  }else{
+   var inp=el.querySelector('select,textarea,input');
+   val=inp?String(inp.value||''):'';
+  }
+  if(req&&!String(val).trim()){ok=false;if(!missing)missing=name;}
+  if(String(val).trim())map[name]=val;
+ });
+ return {map:map,ok:ok,missing:missing};
+}
+function onProduct(sku){
+ if(!document.body||document.body.dataset.page!=='product')return false;
+ try{return (new URLSearchParams(location.search).get('id')||'')===String(sku)}catch(e){return false}
+}
+window.add=function(sku,qty){var m=(window.ECWID_MAP||{})[sku];qty=Math.max(1,parseInt(qty,10)||1);
  if(!m){toast('This item is not in the online store yet — call us to order');return;}
  if(SOLD[m.id]){toast('Sorry, this item is sold out');return;}
- if(m.opts){location.href='cart.html#!/~/product/id='+m.id;return;} // needs size/option choice
+ var payload={id:m.id,quantity:qty,callback:function(ok){toast(ok?'Added to bag':'Could not add — please try again')}};
+ if(m.opts){
+  var sel=readSelection(sku);
+  if(!onProduct(sku)||!sel){
+   if(onProduct(sku)){toast('Options are still loading — try again in a second');return;}
+   location.href='product.html?id='+encodeURIComponent(sku);return;
+  }
+  if(!sel.ok){toast('Please choose '+(sel.missing||'all required options'));return;}
+  payload.options=sel.map;
+ }
  if(!ready()){toast('Cart is loading — try again in a second');return;}
- Ecwid.Cart.addProduct({id:m.id,quantity:qty,callback:function(ok){toast(ok?'Added to bag':'Could not add — please try again')}});};
+ Ecwid.Cart.addProduct(payload);};
 // Live stock from Ecwid's public storefront catalog (fetched on every page load).
 var MEDIA={},DESC={},SOLD={},API='https://us-vir2-storefront-api.ecwid.com/storefront/api/v1/'+SID+'/catalog';
+window.ECWID_OPTS=window.ECWID_OPTS||{};
+window.ECWID_PRE=window.ECWID_PRE||{};
 var CATS=[0,204683856,204683857,204686094,204683858,203054753,203054755,209002026];
 function q(id){return fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({lang:'en',categoryViewMode:'COLLAPSED',parentCategoryId:id,pagination:{offset:0,limit:100},urlParams:{urlType:'CLEAN_URL',baseUrl:'/products',isCleanUrls:true}})}).then(function(r){return r.json()})}
+function buyState(el,text,dis){
+ if(el.textContent!==text)el.textContent=text;
+ dis=!!dis;
+ if((el.tagName==='BUTTON'||el.tagName==='INPUT')&&el.disabled!==dis)el.disabled=dis;
+ if(el.tagName==='A'){
+  var aria=dis?'true':'false';
+  if(el.getAttribute('aria-disabled')!==aria)el.setAttribute('aria-disabled',aria);
+  var pe=dis?'none':'';
+  if(el.style.pointerEvents!==pe)el.style.pointerEvents=pe;
+ }
+ var op=dis?'.5':'';
+ if(el.style.opacity!==op)el.style.opacity=op;
+ var cur=dis?'not-allowed':'';
+ if((el.style.cursor||'')!==cur)el.style.cursor=cur;
+}
 function paint(){var M=window.ECWID_MAP||{};
  document.querySelectorAll('[data-sku]').forEach(function(el){var m=M[el.dataset.sku];if(!m)return;var out=!!SOLD[m.id];
-  if(el.classList.contains('stk')){var t=out?'Sold out':'In stock';if(el.textContent!==t)el.textContent=t;el.style.cssText=out?'background:#eee;color:#888':'';}
-  else{el.disabled=out;var t2=out?'Sold out':'Add to bag';if(el.textContent!==t2)el.textContent=t2;el.style.opacity=out?'.5':'';el.style.cursor=out?'not-allowed':'';}});}
+  if(el.classList.contains('stk')){var t=out?'Sold out':'In stock';if(el.textContent!==t)el.textContent=t;el.style.cssText=out?'background:#eee;color:#888':'';return;}
+  if(el.classList.contains('addb')){
+   if(m.opts){buyState(el,out?'Sold out':'Choose options',out);return;}
+   buyState(el,out?'Sold out':'Add to bag',out);return;
+  }
+  if(el.classList.contains('btn')){
+   var need=false;
+   if(m.opts){var st=readSelection(el.dataset.sku);need=!st||!st.ok;}
+   buyState(el,out?'Sold out':'Add to bag',out||need);
+  }
+ });}
+function onOptEdit(ev){
+ var t=ev.target;if(!t||!t.closest||!t.closest('#popts'))return;
+ paint();
+ if(typeof window.refreshOptPrice==='function')try{window.refreshOptPrice()}catch(e){}
+}
+document.addEventListener('change',onOptEdit);
+document.addEventListener('input',onOptEdit);
 var SITE_CATS={ 'Best Sellers':1, 'Devices':1, 'Lido Creams':1, 'SkinCare':1, 'Treatments':1, 'New':1 };
 function extractCats(p){
   var out=[],seen={};
@@ -68,6 +143,46 @@ function hasOpts(p){
   if(typeof o==='object')return Object.keys(o).length>0;
   return !!o;
 }
+function choiceBlocks(p){
+  try{return (((p.defaultOptionsOverrides||{}).pricesOverrides||{}).optionsChoicesWithModifiersAndTaxes)||null}catch(e){return null}
+}
+function hasChoiceBlocks(p){
+  var b=choiceBlocks(p);
+  if(Array.isArray(b))return b.length>0;
+  return !!(b&&typeof b==='object'&&Object.keys(b).length);
+}
+function normOptions(p){
+  var raw=p&&p.options, list=[];
+  if(Array.isArray(raw))list=raw;
+  else if(raw&&typeof raw==='object'){
+    if(Array.isArray(raw.options))list=raw.options;
+    else if(Array.isArray(raw.items))list=raw.items;
+    else list=Object.keys(raw).map(function(k){
+      var v=raw[k];
+      if(v&&typeof v==='object'){if(!v.optionText&&!v.optionId&&!v.name)v=Object.assign({name:k,optionText:k},v);return v;}
+      return {name:k,optionText:k,type:'DROPDOWN'};
+    });
+  }
+  var choiceMap={};
+  var blocks=choiceBlocks(p)||[];
+  if(Array.isArray(blocks))blocks.forEach(function(b){if(!b)return;var id=b.optionId||b.optionText||b.name;if(id)choiceMap[id]=b.choices||[];});
+  else if(blocks&&typeof blocks==='object')Object.keys(blocks).forEach(function(k){var b=blocks[k];choiceMap[k]=(b&&b.choices)||(Array.isArray(b)?b:[]);});
+  return list.map(function(o){
+    if(!o||typeof o!=='object')return null;
+    var name=String(o.optionText||o.name||o.optionId||o.title||'').trim();
+    var id=o.optionId||name;
+    var type=String(o.type||'DROPDOWN').toUpperCase();
+    var rawChoices=choiceMap[id]||choiceMap[name]||o.choices||o.values||[];
+    if(!Array.isArray(rawChoices))rawChoices=[];
+    var choices=rawChoices.map(function(c){
+      if(typeof c==='string')return {name:c,modifier:''};
+      if(!c||typeof c!=='object')return null;
+      return {name:String(c.choiceName||c.name||c.text||c.choiceId||''),modifier:String(c.modifierFormatted||'')};
+    }).filter(function(c){return c&&c.name});
+    if(!name)return null;
+    return {name:name,type:type,required:!!o.required,choices:choices};
+  }).filter(Boolean);
+}
 function mergeLiveCatalog(byId){
   var M=window.ECWID_MAP=Object.assign({},window.ECWID_MAP||{});
   var P=window.PRODUCTS=window.PRODUCTS||[];
@@ -91,6 +206,10 @@ function mergeLiveCatalog(byId){
     var eimg=mainImage(p);
     var name=(p.name||'').trim()||('Product '+pid);
     var opts=hasOpts(p);
+    var norm=normOptions(p);
+    if(norm.length)window.ECWID_OPTS[pid]=norm;
+    var pre=p.preselectedOptions;
+    if(pre&&typeof pre==='object'&&!Array.isArray(pre))window.ECWID_PRE[pid]=pre;
     var url=productUrl(p);
     var prev=M[sku]||{};
     M[sku]={id:pid, opts:opts, url:url||prev.url||null};
@@ -122,6 +241,11 @@ Promise.all(CATS.map(q)).then(function(rs){
       var a=byId[pid].categoryPaths||[]; var b=p.categoryPaths||[];
       if(b.length)byId[pid].categoryPaths=a.concat(b);
       if(!byId[pid].options&&p.options)byId[pid].options=p.options;
+      if(!hasChoiceBlocks(byId[pid])&&hasChoiceBlocks(p)){
+        var po=byId[pid].defaultOptionsOverrides=byId[pid].defaultOptionsOverrides||{};
+        po.pricesOverrides=po.pricesOverrides||{};
+        po.pricesOverrides.optionsChoicesWithModifiersAndTaxes=choiceBlocks(p);
+      }
     }
   })})})});
   try{mergeLiveCatalog(byId)}catch(e){console.warn('mergeLiveCatalog',e);window.__ECWID_CATALOG_SYNCED=true}

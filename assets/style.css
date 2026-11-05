@@ -1,7 +1,6 @@
 :root{--pink:#7C8643;--ink:#2C2D32;--g:#6f6f6f;--l:#ebebeb;--bg:#F3F3F1;--well:#F2F2EF}
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:Montserrat,system-ui,sans-serif;color:var(--ink);background:#fff;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}
 .w{max-width:1320px;margin:auto;padding:0 32px}
-.mock{background:#2C2D32;color:#bbb;font-size:10.5px;letter-spacing:.14em;text-align:center;padding:5px}
 .promo{background:var(--bg);font-size:13px;text-align:center;padding:9px;font-weight:500}.promo b{color:var(--pink)}
 header{border-bottom:1px solid var(--l);position:sticky;top:0;background:#fff;z-index:20}
 .hd{display:flex;align-items:center;gap:36px;height:72px}
@@ -83,8 +82,7 @@ h1,h2,h3,.sh h2,.ph h1,.hero h1{font-family:Comfortaa,sans-serif;font-weight:700
 .ey{letter-spacing:.22em;font-weight:600;font-family:Montserrat,sans-serif}
 .hero{background:linear-gradient(105deg,#E9EAE4 0,#F3F3F1 55%,#E4E6CF 100%)}
 .pbn{background:linear-gradient(105deg,#EDEDEA,#F5F5F2 60%,#E6E8D3)}
-.promo b{color:#7C8643}.mock{background:#2C2D32}
-.btn{background:#2C2D32}.btn.p{background:#7C8643}
+.promo b{color:#7C8643}.btn{background:#2C2D32}.btn.p{background:#7C8643}
 .cnt{background:#7C8643}
 .why .wl b{color:#7C8643}
 .tg .n{background:#D8D9B9;color:#4d5428}

@@ -4,8 +4,7 @@ const NAV=[['index.html','Home','home'],['shop.html','Shop All','shop'],['skinca
 const SHIP='Same-day shipping on orders before 3 PM CT';
 const ic={u:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4.5-6 8-6s7 2 8 6"/></svg>',h:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-3 4.5 4.5 0 0 1 8 3c0 6-8 11-8 11z"/></svg>',b:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 8h14l-1 13H6z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>',home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11l9-7 9 7v9H3z"/></svg>',m:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h16"/></svg>'};
 const bagN=()=>+(localStorage.bloopBag||0);
-document.body.insertAdjacentHTML('afterbegin',`<div class="mock">BLOOPIFYHUB.COM · SECURE ECWID CHECKOUT</div>
-<div class="promo">🚚 <b>${SHIP}</b></div>
+document.body.insertAdjacentHTML('afterbegin',`<div class="promo">🚚 <b>${SHIP}</b></div>
 <header><div class="w hd"><a class="logo" href="index.html"><img src="assets/img/bloop-logo-charcoal.svg" alt="bloop" onerror="this.src='assets/img/bloop-logo-600.png'"></a>
 <form class="sr" action="shop.html"><svg width="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input name="q" placeholder="Search skincare, Lido Creams, devices…" style="border:0;background:none;outline:0;font:inherit;flex:1"></form>
 <div class="ac"><a class="t" id="acct" href="cart.html#!/~/account">${ic.u}<span id="acctl">Sign in</span></a><a class="t" href="cart.html#!/~/favorites">${ic.h}Wishlist</a><a href="cart.html" aria-label="Bag">${ic.b}<span class="cnt" id="bag">${bagN()}</span></a></div></div>

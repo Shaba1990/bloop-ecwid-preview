@@ -84,7 +84,7 @@ function showGallery(){var main=document.getElementById('pim'),th=document.getEl
   if(window.Ecwid&&Ecwid.OnPageLoaded)Ecwid.OnPageLoaded.add(function(pg){if(!pg)return;if((pg.type==='CATEGORY'||pg.type==='CATEGORIES')&&/cart\.html/i.test(location.pathname||'')&&!(location.hash||'').match(/product|checkout|account|favorites|order/i)){location.replace('shop.html')}});
 })();
 // Wishlist hearts: sync Ecwid favorites.
-// Ecwid persists as localStorage/cookie key PSecwid__{store}PSfavorites (underscores doubled)
+// Ecwid persists as localStorage key PSecwid__{store}PSfavorites (underscores doubled)
 // with JSON value {"productIds":[...]} — NOT a bare array. Empty list clears the key.
 // Prefer Ecwid.Headless.addFavorite/removeFavorite when the JS API is up (server sync for signed-in).
 var FAV_KEY='PSecwid__'+SID+'PSfavorites',FAV_EXP=FAV_KEY+'_expire';
@@ -109,21 +109,18 @@ function favWrite(ids){
   }else{
     var val=JSON.stringify({productIds:uniq});
     try{localStorage.setItem(FAV_KEY,val);localStorage.setItem(FAV_EXP,expStr)}catch(e){}
-    document.cookie=FAV_KEY+'='+encodeURIComponent(val)+';path=/;max-age='+maxAge+';SameSite=Lax';
-    document.cookie=FAV_EXP+'='+encodeURIComponent(expStr)+';path=/;max-age='+maxAge+';SameSite=Lax';
+    // clear legacy cookies we used to write; native uses localStorage only
+    document.cookie=FAV_KEY+'=;path=/;max-age=0;SameSite=Lax';document.cookie=FAV_EXP+'=;path=/;max-age=0;SameSite=Lax';
   }
-  // Push into Ecwid's live persistence layer when available (keeps Favorites page in sync without reload races).
-  try{
-    if(window.Ecwid&&Ecwid.setStorageValue){
-      Ecwid.setStorageValue('CUSTOMER_SESSION','CUSTOMER_FAVORITES',uniq.length?{productIds:uniq}:null);
-    }
-  }catch(e){}
+  // NOTE: never call Ecwid.setStorageValue with an object — it persists "[object Object]" and wipes favorites.
+  // Native Ecwid writes only localStorage (verified): {"productIds":[..]} + _expire as toUTCString().
   return uniq;
 }
 // One-shot migrate: rewrite legacy bare-array favorites into Ecwid's {productIds} shape.
 (function migrateFavFormat(){
   try{
     var raw=localStorage.getItem(FAV_KEY);if(!raw)return;
+    if(raw.charAt(0)!=='{'&&raw.charAt(0)!=='['){favWrite(favRead());return;} // repair "[object Object]"
     var v=JSON.parse(raw);
     if(Array.isArray(v))favWrite(v.map(Number).filter(Boolean));
   }catch(e){}

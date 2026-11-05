@@ -1,0 +1,394 @@
+{
+ "store_id": 138742751,
+ "source": "Ecwid storefront API (bloopifyhub.com), fetched 2026-11-04",
+ "products": {
+  "D1": {
+   "name": "0.3 AMPOULES 10 PCS",
+   "site_price": 35.0,
+   "ecwid_id": 846162092,
+   "ecwid_name": "0.3 AMPOULES 10 PCS",
+   "ecwid_price": 35.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/0-3-AMPOULES-10-PCS-p846162092"
+  },
+  "D2": {
+   "name": "0.5 AMPOULES 10PCS",
+   "site_price": 35.0,
+   "ecwid_id": 846164089,
+   "ecwid_name": "0.5 AMPOULES 10PCS",
+   "ecwid_price": 35.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/0-5-AMPOULES-10PCS-p846164089"
+  },
+  "D3": {
+   "name": "3D COLLAGEN EYE MASK",
+   "site_price": 9.99,
+   "ecwid_id": 846161344,
+   "ecwid_name": "3D COLLAGEN EYE MASK",
+   "ecwid_price": 9.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/3D-COLLAGEN-EYE-MASK-p846161344"
+  },
+  "D4": {
+   "name": "AMI EYES PDRN 2 ML",
+   "site_price": 55.0,
+   "ecwid_id": 846164079,
+   "ecwid_name": "AMI EYES PDRN 2 ML",
+   "ecwid_price": 55.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/AMI-EYES-PDRN-2-ML-p846164079"
+  },
+  "D6": {
+   "name": "BENTPLA GEL ANTI-BRUISE GEL",
+   "site_price": 19.0,
+   "ecwid_id": 846161354,
+   "ecwid_name": "BENTPLA GEL ANTI-BRUISE GEL",
+   "ecwid_price": 19.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/BENTPLA-GEL-ANTI-BRUISE-GEL-p846161354"
+  },
+  "D7": {
+   "name": "BLUE PICOSECOND LASER PEN",
+   "site_price": 89.0,
+   "ecwid_id": 846161346,
+   "ecwid_name": "BLUE PICOSECOND LASER PEN",
+   "ecwid_price": 89.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/BLUE-PICOSECOND-LASER-PEN-p846161346"
+  },
+  "D8": {
+   "name": "COLLAGEN GEL EYE MASK",
+   "site_price": 9.99,
+   "ecwid_id": 846161355,
+   "ecwid_name": "COLLAGEN GEL EYE MASK",
+   "ecwid_price": 9.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/COLLAGEN-GEL-EYE-MASK-p846161355"
+  },
+  "D9": {
+   "name": "COLLAGEN SHOT AMPOULE",
+   "site_price": 19.99,
+   "ecwid_id": 846164077,
+   "ecwid_name": "COLLAGEN SHOT AMPOULE",
+   "ecwid_price": 19.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/COLLAGEN-SHOT-AMPOULE-p846164077"
+  },
+  "D10": {
+   "name": "COLLEVIA RH COLLAGEN",
+   "site_price": 55.0,
+   "ecwid_id": 846164080,
+   "ecwid_name": "COLLEVIA RH COLLAGEN",
+   "ecwid_price": 55.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/COLLEVIA-RH-COLLAGEN-p846164080"
+  },
+  "D11": {
+   "name": "CRYSTAL MULTI NEEDLE (20 PCS)",
+   "site_price": 75.0,
+   "ecwid_id": 846162094,
+   "ecwid_name": "CRYSTAL MULTI NEEDLE (20 PCS)",
+   "ecwid_price": 75.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/CRYSTAL-MULTI-NEEDLE-20-PCS-p846162094"
+  },
+  "D12": {
+   "name": "CURENEX REJUVENATING MASK",
+   "site_price": 19.0,
+   "ecwid_id": 846161349,
+   "ecwid_name": "CURENEX REJUVENATING MASK",
+   "ecwid_price": 19.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/CURENEX-REJUVENATING-MASK-p846161349"
+  },
+  "D13": {
+   "name": "Dr Pen A6",
+   "site_price": 115.0,
+   "ecwid_id": 846164086,
+   "ecwid_name": "Dr Pen A6",
+   "ecwid_price": 115.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/Dr-Pen-A6-p846164086"
+  },
+  "D15": {
+   "name": "Dr Pen A7",
+   "site_price": 105.0,
+   "ecwid_id": 846161342,
+   "ecwid_name": "Dr Pen A7",
+   "ecwid_price": 105.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/Dr-Pen-A7-p846161342"
+  },
+  "D16": {
+   "name": "Dr. Pen A7 Needle Cartridges",
+   "site_price": 0.0,
+   "ecwid_id": 846164088,
+   "ecwid_name": "Dr. Pen A7 Needle Cartridges",
+   "ecwid_price": 0.0,
+   "has_options": true,
+   "ecwid_url": "https://bloopifyhub.com/products/Dr-Pen-A7-Needle-Cartridges-p846164088"
+  },
+  "D17": {
+   "name": "Dr. Pen M8S Needle Cartridges",
+   "site_price": 0.0,
+   "ecwid_id": 846162090,
+   "ecwid_name": "Dr. Pen M8S Needle Cartridges",
+   "ecwid_price": 0.0,
+   "has_options": true,
+   "ecwid_url": "https://bloopifyhub.com/products/Dr-Pen-M8S-Needle-Cartridges-p846162090"
+  },
+  "D19": {
+   "name": "FATLAB PATCHES 8X",
+   "site_price": 44.99,
+   "ecwid_id": 846161356,
+   "ecwid_name": "FATLAB PATCHES 8X",
+   "ecwid_price": 44.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/FATLAB-PATCHES-8X-p846161356"
+  },
+  "D20": {
+   "name": "GLUTATHIONE FILM",
+   "site_price": 35.0,
+   "ecwid_id": 846161350,
+   "ecwid_name": "GLUTATHIONE FILM",
+   "ecwid_price": 35.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/GLUTATHIONE-FILM-p846161350"
+  },
+  "D21": {
+   "name": "Hairiz Exo Scalp Care Shampoo",
+   "site_price": 45.0,
+   "ecwid_id": 846164083,
+   "ecwid_name": "Hairiz Exo Scalp Care Shampoo",
+   "ecwid_price": 45.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/Hairiz-Exo-Scalp-Care-Shampoo-p846164083"
+  },
+  "D22": {
+   "name": "IPL HAIR REMOVAL",
+   "site_price": 159.99,
+   "ecwid_id": 846162097,
+   "ecwid_name": "IPL HAIR REMOVAL",
+   "ecwid_price": 159.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/IPL-HAIR-REMOVAL-p846162097"
+  },
+  "D23": {
+   "name": "Isotonic Sodium Chloride Syringe 10ml",
+   "site_price": 5.0,
+   "ecwid_id": 846161351,
+   "ecwid_name": "Isotonic Sodium Chloride Syringe 10ml",
+   "ecwid_price": 5.0,
+   "has_options": true,
+   "ecwid_url": "https://bloopifyhub.com/products/Isotonic-Sodium-Chloride-Syringe-10ml-p846161351"
+  },
+  "D24": {
+   "name": "ISOTONIC SODIUM SOLUTION SALINE (50 BOTTLES)",
+   "site_price": 75.0,
+   "ecwid_id": 846164087,
+   "ecwid_name": "ISOTONIC SODIUM SOLUTION SALINE (50 BOTTLES)",
+   "ecwid_price": 75.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/ISOTONIC-SODIUM-SOLUTION-SALINE-50-BOTTLES-p846164087"
+  },
+  "D25": {
+   "name": "ISOTONIC SODIUM SOLUTION SALINE 5PCS",
+   "site_price": 12.0,
+   "ecwid_id": 846161345,
+   "ecwid_name": "ISOTONIC SODIUM SOLUTION SALINE 5PCS",
+   "ecwid_price": 12.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/ISOTONIC-SODIUM-SOLUTION-SALINE-5PCS-p846161345"
+  },
+  "D26": {
+   "name": "J-Cain Numbing Cream",
+   "site_price": 70.0,
+   "ecwid_id": 846161357,
+   "ecwid_name": "J-Cain Numbing Cream",
+   "ecwid_price": 70.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/J-Cain-Numbing-Cream-p846161357"
+  },
+  "D27": {
+   "name": "JTN Meso Needle 30G",
+   "site_price": 30.0,
+   "ecwid_id": 846164085,
+   "ecwid_name": "JTN Meso Needle 30G",
+   "ecwid_price": 30.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/JTN-Meso-Needle-30G-p846164085"
+  },
+  "D28": {
+   "name": "KOJIC ACID BRIGHTENING MASK 4PCS",
+   "site_price": 9.99,
+   "ecwid_id": 846164078,
+   "ecwid_name": "KOJIC ACID BRIGHTENING MASK 4PCS",
+   "ecwid_price": 9.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/KOJIC-ACID-BRIGHTENING-MASK-4PCS-p846164078"
+  },
+  "D29": {
+   "name": "LEXYFILL VOLUME CREAM",
+   "site_price": 35.0,
+   "ecwid_id": 846162095,
+   "ecwid_name": "LEXYFILL VOLUME CREAM",
+   "ecwid_price": 35.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/LEXYFILL-VOLUME-CREAM-p846162095"
+  },
+  "D30": {
+   "name": "MK NUMBING CREAM 500G",
+   "site_price": 65.0,
+   "ecwid_id": 846164084,
+   "ecwid_name": "MK NUMBING CREAM 500G",
+   "ecwid_price": 65.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/MK-NUMBING-CREAM-500G-p846164084"
+  },
+  "D32": {
+   "name": "NAD+ PRIME",
+   "site_price": 119.0,
+   "ecwid_id": 846162098,
+   "ecwid_name": "​NAD+ PRIME",
+   "ecwid_price": 119.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/NAD-PRIME-p846162098"
+  },
+  "D33": {
+   "name": "NEO-CAIN 30 g 10.56%",
+   "site_price": 16.0,
+   "ecwid_id": 846162099,
+   "ecwid_name": "NEO-CAIN 30 g 10.56%",
+   "ecwid_price": 16.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/NEO-CAIN-30-g-10-56-p846162099"
+  },
+  "D34": {
+   "name": "NOVANAD 500MG NAD+",
+   "site_price": 165.0,
+   "ecwid_id": 846164090,
+   "ecwid_name": "NOVANAD 500MG NAD+",
+   "ecwid_price": 165.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/NOVANAD-500MG-NAD-p846164090"
+  },
+  "D35": {
+   "name": "PDRN COLLAGEN GEL MASK 4PCS",
+   "site_price": 9.99,
+   "ecwid_id": 846161348,
+   "ecwid_name": "PDRN COLLAGEN GEL MASK 4PCS",
+   "ecwid_price": 9.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PDRN-COLLAGEN-GEL-MASK-4PCS-p846161348"
+  },
+  "D36": {
+   "name": "PDRN SKIN BOOSTER",
+   "site_price": 99.0,
+   "ecwid_id": 846161352,
+   "ecwid_name": "PDRN SKIN BOOSTER",
+   "ecwid_price": 99.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PDRN-SKIN-BOOSTER-p846161352"
+  },
+  "D37": {
+   "name": "PLLA CUBE",
+   "site_price": 95.0,
+   "ecwid_id": 846161347,
+   "ecwid_name": "PLLA CUBE",
+   "ecwid_price": 95.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PLLA-CUBE-p846161347"
+  },
+  "D38": {
+   "name": "PN-pro Eye",
+   "site_price": 57.0,
+   "ecwid_id": 846161343,
+   "ecwid_name": "PN-pro Eye",
+   "ecwid_price": 57.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PN-pro-Eye-p846161343"
+  },
+  "D39": {
+   "name": "PROFHILO HASKIN",
+   "site_price": 195.0,
+   "ecwid_id": 846161358,
+   "ecwid_name": "PROFHILO HASKIN",
+   "ecwid_price": 195.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PROFHILO-HASKIN-p846161358"
+  },
+  "D40": {
+   "name": "PURI HEAL GLOW",
+   "site_price": 155.0,
+   "ecwid_id": 846162091,
+   "ecwid_name": "PURI HEAL GLOW",
+   "ecwid_price": 155.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/PURI-HEAL-GLOW-p846162091"
+  },
+  "D41": {
+   "name": "Puri Heal Lucent",
+   "site_price": 150.0,
+   "ecwid_id": 846164082,
+   "ecwid_name": "Puri Heal Lucent",
+   "ecwid_price": 150.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/Puri-Heal-Lucent-p846164082"
+  },
+  "D42": {
+   "name": "Puri PDRN",
+   "site_price": 99.0,
+   "ecwid_id": 846162087,
+   "ecwid_name": "Puri PDRN",
+   "ecwid_price": 99.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/Puri-PDRN-p846162087"
+  },
+  "D43": {
+   "name": "Rean PDRN Eye Drops 0.5ml × 30 Vials",
+   "site_price": 30.0,
+   "ecwid_id": 846162093,
+   "ecwid_name": "Rean PDRN Eye Drops 0.5ml × 30 Vials",
+   "ecwid_price": 30.0,
+   "has_options": true,
+   "ecwid_url": "https://bloopifyhub.com/products/Rean-PDRN-Eye-Drops-0-5ml-x-30-Vials-p846162093"
+  },
+  "D44": {
+   "name": "RED PICOSECOND LASER",
+   "site_price": 89.0,
+   "ecwid_id": 846161353,
+   "ecwid_name": "RED PICOSECOND LASER",
+   "ecwid_price": 89.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/RED-PICOSECOND-LASER-p846161353"
+  },
+  "D45": {
+   "name": "RETINOL SHOT TIGHTNING SERUM",
+   "site_price": 20.99,
+   "ecwid_id": 846164091,
+   "ecwid_name": "RETINOL SHOT TIGHTNING SERUM",
+   "ecwid_price": 20.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/RETINOL-SHOT-TIGHTNING-SERUM-p846164091"
+  },
+  "D46": {
+   "name": "SM CREAM 500g",
+   "site_price": 75.0,
+   "ecwid_id": 846162096,
+   "ecwid_name": "SM CREAM 500g",
+   "ecwid_price": 75.0,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/SM-CREAM-500g-p846162096"
+  },
+  "D47": {
+   "name": "SM LIDO CREAM 30G",
+   "site_price": 14.99,
+   "ecwid_id": 846162088,
+   "ecwid_name": "SM LIDO CREAM 30G",
+   "ecwid_price": 14.99,
+   "has_options": false,
+   "ecwid_url": "https://bloopifyhub.com/products/SM-LIDO-CREAM-30G-p846162088"
+  }
+ },
+ "stock_note": "Stock is read live at runtime from the storefront catalog API; not stored here."
+}

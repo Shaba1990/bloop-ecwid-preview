@@ -20,13 +20,124 @@ const inC=c=>products().filter(p=>p.cats&&p.cats.includes(c));
 const label=p=>p.cats.includes('Lido Creams')?'Lido Cream':p.cats.filter(c=>c!='Best Sellers'&&c!='New')[0]||'Bloop';
 const img=p=>(p.img||p.eimg)?`<img src="${p.img||p.eimg}" alt="${p.name}" loading="lazy"${p.img&&p.eimg?` onerror="this.onerror=null;this.src='${p.eimg}'"`:''}>`:`<div style="width:40%;height:55%;background:#fff;border-radius:10px"></div>`;
 const money=n=>'$'+(+n).toFixed(2);
-function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+p.sku;
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const jsStr=s=>String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+function modNum(raw,base){
+  if(raw==null||raw==='')return 0;
+  const s=String(raw).replace(/\u2212/g,'-').replace(/\s+/g,'');
+  const pct=s.match(/^([+-])?(\d+(?:\.\d+)?)%$/);
+  if(pct){let n=parseFloat(pct[2]);if(!isFinite(n))return 0;if(pct[1]==='-')n=-n;return base*(n/100)}
+  let m=s.match(/^([+-])?\$?(\d+(?:\.\d+)?)$/);
+  if(!m)m=s.match(/([+-])?\$(\d+(?:\.\d+)?)/);
+  if(!m)return 0;
+  let n=parseFloat(m[2]);if(!isFinite(n))return 0;if(m[1]==='-')n=-n;return n;
+}
+function captureOpts(){
+  const box=document.getElementById('popts');
+  if(!box)return window.__optKeep||{};
+  const st={};
+  box.querySelectorAll('[data-opt]').forEach(el=>{
+    const name=el.getAttribute('data-opt');
+    const type=(el.getAttribute('data-type')||'').toUpperCase();
+    if(type==='CHECKBOX'||type==='CHECKBOXES'){st[name]=[].map.call(el.querySelectorAll('input:checked'),i=>i.value);return}
+    if(type==='RADIO'||type==='SIZE'||type==='SWATCHES'||type==='COLOR'){const r=el.querySelector('input:checked');st[name]=r?r.value:'';return}
+    const inp=el.querySelector('select,textarea,input');
+    st[name]=inp?inp.value:'';
+  });
+  return st;
+}
+function optionList(sku){const m=(window.ECWID_MAP||{})[sku];return (m&&(window.ECWID_OPTS||{})[m.id])||[]}
+function optionsSatisfied(sku){
+  const m=(window.ECWID_MAP||{})[sku];
+  if(!m||!m.opts)return true;
+  const list=optionList(sku);
+  if(!list.length)return false;
+  const keep=window.__optKeep||{};
+  return list.every(o=>{
+    if(!o.required)return true;
+    const v=keep[o.name];
+    const t=(o.type||'').toUpperCase();
+    if(t==='CHECKBOX'||t==='CHECKBOXES')return Array.isArray(v)?v.length>0:!!v;
+    return v!=null&&String(v).trim()!=='';
+  });
+}
+function optionFields(sku){
+  const m=(window.ECWID_MAP||{})[sku];
+  if(!m||!m.opts)return '';
+  const list=optionList(sku);
+  if(!list.length)return `<div class="popts" id="popts" data-sku="${esc(sku)}"><p class="muted">Loading options…</p></div>`;
+  const keep=window.__optKeep||{};
+  const pre=(window.ECWID_PRE||{})[m.id]||{};
+  const kept=name=>{
+    if(Object.prototype.hasOwnProperty.call(keep,name))return keep[name];
+    const p=pre[name];
+    if(typeof p==='string'||typeof p==='number')return String(p);
+    if(Array.isArray(p))return p.map(x=>typeof x==='string'||typeof x==='number'?String(x):(x&&(x.choiceName||x.name||x.value))||'').filter(Boolean);
+    return undefined;
+  };
+  const choiceLabel=c=>esc(c.name)+(c.modifier?` (${esc(c.modifier)})`:'');
+  return `<div class="popts" id="popts" data-sku="${esc(sku)}">`+list.map((o,i)=>{
+    const type=(o.type||'DROPDOWN').toUpperCase();
+    const req=o.required?'1':'0';
+    const label=`${esc(o.name)}${o.required?' <i class="req" aria-hidden="true">*</i>':''}`;
+    const attr=`data-opt="${esc(o.name)}" data-type="${esc(type)}" data-required="${req}"`;
+    const cur=kept(o.name);
+    if(type==='RADIO'||type==='SIZE'||type==='SWATCHES'||type==='COLOR'){
+      const chosen=cur==null?'':String(cur);
+      return `<fieldset class="popt" ${attr}><legend class="ol">${label}</legend><div class="choices" role="radiogroup" aria-label="${esc(o.name)}">`+
+        (o.choices||[]).map(c=>`<label><input type="radio" name="bopt${i}" value="${esc(c.name)}" data-mod="${esc(c.modifier||'')}"${c.name===chosen?' checked':''}>${choiceLabel(c)}</label>`).join('')+
+        `</div></fieldset>`;
+    }
+    if(type==='CHECKBOX'||type==='CHECKBOXES'){
+      const arr=Array.isArray(cur)?cur.map(String):(cur!=null&&String(cur)!==''?[String(cur)]:[]);
+      return `<fieldset class="popt" ${attr}><legend class="ol">${label}</legend><div class="choices">`+
+        (o.choices||[]).map(c=>`<label><input type="checkbox" value="${esc(c.name)}" data-mod="${esc(c.modifier||'')}"${arr.indexOf(c.name)>=0?' checked':''}>${choiceLabel(c)}</label>`).join('')+
+        `</div></fieldset>`;
+    }
+    if(type==='TEXTAREA')return `<div class="popt" ${attr}><label class="ol" for="bopt${i}">${label}</label><textarea id="bopt${i}">${esc(cur==null?'':cur)}</textarea></div>`;
+    if(type==='TEXTFIELD'||type==='TEXT'||type==='DATE'){
+      const itype=type==='DATE'?'date':'text';
+      return `<div class="popt" ${attr}><label class="ol" for="bopt${i}">${label}</label><input id="bopt${i}" type="${itype}" value="${esc(cur==null?'':cur)}"></div>`;
+    }
+    if((o.choices||[]).length){
+      const chosen=cur==null?'':String(cur);
+      return `<div class="popt" ${attr}><label class="ol" for="bopt${i}">${label}</label><select id="bopt${i}"><option value="">Choose…</option>`+
+        (o.choices||[]).map(c=>`<option value="${esc(c.name)}" data-mod="${esc(c.modifier||'')}"${c.name===chosen?' selected':''}>${choiceLabel(c)}</option>`).join('')+
+        `</select></div>`;
+    }
+    return `<div class="popt" ${attr}><label class="ol" for="bopt${i}">${label}</label><input id="bopt${i}" type="text" value="${esc(cur==null?'':cur)}"></div>`;
+  }).join('')+`</div>`;
+}
+function refreshOptPrice(){
+  const el=$('ppricev'); if(!el)return;
+  const wrap=$('pprice');
+  const base=wrap?+wrap.dataset.base:NaN;
+  if(!isFinite(base))return;
+  let extra=0;
+  document.querySelectorAll('#popts [data-opt]').forEach(box=>{
+    const sel=box.querySelector('select');
+    if(sel){const o=sel.options[sel.selectedIndex]; if(o)extra+=modNum(o.getAttribute('data-mod'),base); return}
+    box.querySelectorAll('input:checked').forEach(i=>{extra+=modNum(i.getAttribute('data-mod'),base)});
+  });
+  const next=money(Math.max(0,Math.round((base+extra)*100)/100));
+  if(el.textContent!==next)el.textContent=next;
+  const changed=Math.abs(extra)>0.0001;
+  const em=wrap.querySelector('em'), s=wrap.querySelector('s');
+  if(em)em.style.display=changed?'none':'';
+  if(s)s.style.display=changed?'none':'';
+}
+window.refreshOptPrice=refreshOptPrice;
+function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+encodeURIComponent(p.sku);
+const choose=!!((window.ECWID_MAP||{})[p.sku]||{}).opts;
+const buy=choose
+  ? `<a class="addb" data-sku="${esc(p.sku)}" href="${u}">Choose options</a>`
+  : `<button type="button" class="addb" data-sku="${esc(p.sku)}" onclick="event.stopPropagation();add('${jsStr(p.sku)}')">Add to bag</button>`;
 return `<div class="card"><button type="button" class="hrt" style="top:10px;z-index:5" title="Save to wishlist" data-fav="${p.sku}" aria-label="Save to wishlist" aria-pressed="false">♡</button>
 <a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</span>
 <span class="bd">${label(p)}</span><span class="nm">${p.name.toLowerCase()}</span>
 <span class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</span>
 <span class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></span></a>
-<button type="button" class="addb" data-sku="${p.sku}" onclick="event.stopPropagation();add('${p.sku}')">Add to bag</button></div>`}
+${buy}</div>`}
 function chgQty(d){const e=$('qtyv');if(!e)return;e.textContent=Math.max(1,(+e.textContent||1)+d)}
 function toast(t){const e=$('toast');if(!e)return;e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1600)}
 const rail=(id,a,rank)=>{const e=$(id);if(e)e.innerHTML=a.map((p,i)=>card(p,i,rank)).join('')};
@@ -44,7 +155,7 @@ window.renderCatalog=function(){
   if(sortEl)sortEl.onchange=draw;draw()}
  // home
  if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
-  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105m" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105n" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
   const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
   if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
   rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
@@ -65,10 +176,15 @@ window.renderCatalog=function(){
   const c=label(p),u={'Lido Cream':'lido-creams.html','SkinCare':'skincare.html','Devices':'devices.html','Treatments':'treatments.html'}[c]||'shop.html';
   const off=p.compare?Math.round((1-p.price/p.compare)*100):0;
   const qtyKeep=$('qtyv')?$('qtyv').textContent:'1';
-  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
+  window.__optKeep=captureOpts();
+  const optHtml=optionFields(p.sku);
+  const canAdd=optionsSatisfied(p.sku);
+  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr" id="pprice" data-base="${p.price}">${off?`<em>${off}%</em>`:''}<span id="ppricev">${money(p.price)}</span>${off?`<s>${money(p.compare)}</s>`:''}</div>
  <div class="tg" style="margin-top:12px">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Professional use</span>':''}<span class="stk" data-sku="${p.sku}">Checking stock…</span></div>
- <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">${qtyKeep||1}</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button class="btn" data-sku="${p.sku}" onclick="add('${p.sku}',+($('qtyv').textContent)||1)">Add to bag</button></div>
+ ${optHtml}
+ <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">${qtyKeep||1}</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button type="button" class="btn" data-sku="${esc(p.sku)}"${canAdd?'':' disabled'} onclick="add('${jsStr(p.sku)}',+($('qtyv').textContent)||1)">Add to bag</button></div>
  <div class="pdesc" id="pdesc"><p class="muted">Loading description…</p></div><ul><li><b>Shipping</b>Same-day shipping on orders before 3 PM CT</li><li><b>Category</b>${p.cats.join(' · ')}</li><li><b>Use</b>${c=='Lido Cream'?'External use only. Follow label directions. For trained beauty professionals.':c=='Treatments'?'Professional-use item for trained, qualified professionals.':'Cosmetic use. Follow label directions.'}</li><li><b>Questions</b>+1-815-505-4387 · bloop.store25@gmail.com</li></ul></div>`;
+  refreshOptPrice();
   rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}
 };
 window.renderCatalog();

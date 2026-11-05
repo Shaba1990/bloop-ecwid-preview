@@ -10,6 +10,12 @@ window.bagN=function(){return 0};setBag(0);
 var poll=setInterval(function(){if(!window.Ecwid||!Ecwid.OnAPILoaded)return;clearInterval(poll);
  Ecwid.OnAPILoaded.add(function(){Ecwid.Cart.get(function(c){setBag(c.productsQuantity)});
   Ecwid.OnCartChanged.add(function(c){setBag(c.productsQuantity)});
+  // Account label: "Account" when an Ecwid customer is signed in
+  function acct(){Ecwid.Customer.get(function(cu){var l=document.getElementById('acctl');if(l)l.textContent=cu?'Account':'Sign in'})}
+  acct();if(Ecwid.OnSetProfile)Ecwid.OnSetProfile.add(acct);
+  Ecwid.OnPageLoaded.add(function(pg){acct();var t=document.getElementById('crumbt');if(!t)return;
+   var n={ACCOUNT:'My account',ACCOUNT_SETTINGS:'My account',ORDERS:'My orders',FAVORITES:'Wishlist',SIGN_IN:'Sign in',RESET_PASSWORD:'Sign in',PRODUCT:'Product',CART:'Bag & checkout'}[pg.type];
+   if(n)t.textContent=n;});
   if(document.body.dataset.page==='cart'&&!location.hash)Ecwid.openPage('cart');});},200);
 window.add=function(sku,qty){var m=(window.ECWID_MAP||{})[sku];qty=Math.max(1,parseInt(qty)||1);
  if(!m){toast('This item is not in the online store yet — call us to order');return;}
@@ -54,6 +60,8 @@ function showGallery(){var main=document.getElementById('pim'),th=document.getEl
  .then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(d){var h=clean(d.text||'');if(!h.replace(/<[^>]+>|&nbsp;|\s/g,''))throw 0;
   if(d.title){document.getElementById('ltitle').textContent=d.title;document.title=d.title+' — Bloop';}box.innerHTML=h;})
  .catch(function(){box.innerHTML='<p class="muted">This policy could not be loaded right now. Please refresh, or contact us at +1-815-505-4387 or bloop.store25@gmail.com.</p>'});})();
+// Wishlist hearts on cards open the Ecwid product view where "Add to favorites" lives.
+document.addEventListener('click',function(ev){var a=ev.target.closest&&ev.target.closest('[data-fav]');if(!a)return;var m=(window.ECWID_MAP||{})[a.dataset.fav];if(!m)return;ev.preventDefault();location.href='cart.html#!/~/product/id='+m.id;});
 // re-paint after any client-side re-render (e.g. sort change)
 new MutationObserver(function(){if(Object.keys(SOLD).length)paint()}).observe(document.body,{childList:true,subtree:true});
 })();

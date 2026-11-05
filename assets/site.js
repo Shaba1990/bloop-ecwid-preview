@@ -8,7 +8,7 @@ document.body.insertAdjacentHTML('afterbegin',`<div class="mock">BLOOPIFYHUB.COM
 <div class="promo">🚚 <b>${SHIP}</b></div>
 <header><div class="w hd"><a class="logo" href="index.html"><img src="assets/img/bloop-logo-charcoal.svg" alt="bloop" onerror="this.src='assets/img/bloop-logo-600.png'"></a>
 <form class="sr" action="shop.html"><svg width="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input name="q" placeholder="Search skincare, Lido Creams, devices…" style="border:0;background:none;outline:0;font:inherit;flex:1"></form>
-<div class="ac"><span class="t">${ic.u}Sign in</span><span class="t">${ic.h}Wishlist</span><a href="cart.html" aria-label="Bag">${ic.b}<span class="cnt" id="bag">${bagN()}</span></a></div></div>
+<div class="ac"><a class="t" id="acct" href="cart.html#!/~/account">${ic.u}<span id="acctl">Sign in</span></a><a class="t" href="cart.html#!/~/favorites">${ic.h}Wishlist</a><a href="cart.html" aria-label="Bag">${ic.b}<span class="cnt" id="bag">${bagN()}</span></a></div></div>
 <nav><div class="w">${NAV.map(n=>`<a class="${n[2]==PAGE?'on':''}" href="${n[0]}">${n[1]}</a>`).join('')}<a class="r">Mon–Fri 9–5 CT · Sat 9–12</a></div></nav></header>`);
 document.body.insertAdjacentHTML('beforeend',`<div class="trust w" style="margin-top:70px"><div><span class="ti">🚚</span><span><b>Same-day shipping</b>On orders before 3 PM CT</span></div><div><span class="ti">🇰🇷</span><span><b>K-beauty favorites</b>Curated catalog</span></div><div><span class="ti">🔒</span><span><b>Secure checkout</b>Safe card payments</span></div><div><span class="ti">💬</span><span><b>Real people</b>Call or email us</span></div></div>
 <footer><div class="w"><div class="fc"><div><a class="logo" href="index.html"><img src="assets/img/bloop-logo-charcoal.svg" alt="bloop" onerror="this.src='assets/img/bloop-logo-600.png'"></a><p style="margin-top:10px;line-height:1.7">bloopifyhub.com — your K-beauty shop for skincare, devices, Lido Creams and pro treatments.</p></div>
@@ -21,7 +21,7 @@ const label=p=>p.cats.includes('Lido Creams')?'Lido Cream':p.cats.filter(c=>c!='
 const img=p=>(p.img||p.eimg)?`<img src="${p.img||p.eimg}" alt="${p.name}" loading="lazy"${p.img&&p.eimg?` onerror="this.onerror=null;this.src='${p.eimg}'"`:''}>`:`<div style="width:40%;height:55%;background:#fff;border-radius:10px"></div>`;
 const money=n=>'$'+n.toFixed(2);
 function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+p.sku;
-return `<div class="card"><a href="${u}" class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</a><span class="hrt" style="top:10px" onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'♥':'♡'">♡</span>
+return `<div class="card"><a href="${u}" class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</a><a class="hrt" style="top:10px" title="Save to wishlist" data-fav="${p.sku}" href="product.html?id=${p.sku}">♡</a>
 <a href="${u}"><div class="bd">${label(p)}</div><div class="nm">${p.name.toLowerCase()}</div></a>
 <div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
 <div class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></div><button class="addb" data-sku="${p.sku}" onclick="add('${p.sku}')">Add to bag</button></div>`}

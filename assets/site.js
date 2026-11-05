@@ -15,17 +15,19 @@ document.body.insertAdjacentHTML('beforeend',`<div class="trust w" style="margin
 <div><h5>Shop</h5><ul>${NAV.slice(1,6).map(n=>`<li><a href="${n[0]}">${n[1]}</a></li>`).join('')}</ul></div><div><h5>Bloop</h5><ul><li><a href="about.html">About</a></li><li><a href="contact.html">Contact</a></li><li><a href="shipping.html">Shipping &amp; payment</a></li><li><a href="returns.html">Returns</a></li><li><a href="terms.html">Terms &amp; conditions</a></li><li><a href="privacy.html">Privacy policy</a></li></ul></div>
 <div><h5>Contact</h5><ul><li>Chicago, IL</li><li>Mon–Fri 9 AM–5 PM CT</li><li>Sat 9 AM–12 PM CT</li><li><a href="tel:+18155054387">+1-815-505-4387</a></li><li><a href="mailto:bloop.store25@gmail.com">bloop.store25@gmail.com</a></li></ul></div></div>
 <div class="lg">Products are sold for cosmetic and professional beauty use. Statements are not intended to diagnose, treat, cure or prevent any disease. Topical creams: external use only, follow label directions. Treatments and professional items are intended for trained professionals. Orders placed before 3 PM CT Mon–Fri ship the same day. © 2026 Bloop</div></div></footer>
-<div class="tb"><a href="index.html"><span>${ic.home}Home</span></a><a href="shop.html"><span>${ic.m}Shop</span></a><a href="skincare.html"><span>${ic.h}Skin</span></a><a href="lido-creams.html"><span>${ic.u}Lido</span></a><a href="cart.html"><span>${ic.b}Bag</span></a></div><div class="toast" id="toast"></div>`);
+<div class="tb"><a href="index.html"><span>${ic.home}Home</span></a><a href="shop.html"><span>${ic.m}Shop</span></a><a href="cart.html#!/~/favorites"><span>${ic.h}Wishlist</span></a><a href="cart.html#!/~/account"><span>${ic.u}Account</span></a><a href="cart.html"><span>${ic.b}Bag</span></a></div><div class="toast" id="toast"></div>`);
 const inC=c=>P.filter(p=>p.cats.includes(c));
 const label=p=>p.cats.includes('Lido Creams')?'Lido Cream':p.cats.filter(c=>c!='Best Sellers'&&c!='New')[0]||'Bloop';
 const img=p=>(p.img||p.eimg)?`<img src="${p.img||p.eimg}" alt="${p.name}" loading="lazy"${p.img&&p.eimg?` onerror="this.onerror=null;this.src='${p.eimg}'"`:''}>`:`<div style="width:40%;height:55%;background:#fff;border-radius:10px"></div>`;
 const money=n=>'$'+n.toFixed(2);
 function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+p.sku;
-return `<div class="card"><a href="${u}" class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</a><a class="hrt" style="top:10px" title="Save to wishlist" data-fav="${p.sku}" href="product.html?id=${p.sku}">♡</a>
-<a href="${u}"><div class="bd">${label(p)}</div><div class="nm">${p.name.toLowerCase()}</div></a>
-<div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
-<div class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></div><button class="addb" data-sku="${p.sku}" onclick="add('${p.sku}')">Add to bag</button></div>`}
-function add(){localStorage.bloopBag=bagN()+1;$('bag').textContent=bagN();toast('Added to bag (preview)')}
+return `<div class="card"><a class="hrt" style="top:10px;z-index:2" title="Save to wishlist" data-fav="${p.sku}" href="${u}" onclick="event.stopPropagation()">♡</a>
+<a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</span>
+<span class="bd">${label(p)}</span><span class="nm">${p.name.toLowerCase()}</span>
+<span class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</span>
+<span class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></span></a>
+<button type="button" class="addb" data-sku="${p.sku}" onclick="event.stopPropagation();add('${p.sku}')">Add to bag</button></div>`}
+function chgQty(d){const e=$('qtyv');if(!e)return;e.textContent=Math.max(1,(+e.textContent||1)+d)}
 function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1600)}
 const rail=(id,a,rank)=>{const e=$(id);if(e)e.innerHTML=a.map((p,i)=>card(p,i,rank)).join('')};
 // category / shop pages
@@ -47,6 +49,6 @@ if(PAGE=='product'){const p=P.find(x=>x.sku==new URLSearchParams(location.search
  const off=p.compare?Math.round((1-p.price/p.compare)*100):0;
  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
  <div class="tg" style="margin-top:12px">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Professional use</span>':''}<span class="stk" data-sku="${p.sku}">Checking stock…</span></div>
- <div class="qty"><div class="q"><button>−</button><span style="width:26px;text-align:center">1</span><button>+</button></div><button class="btn" data-sku="${p.sku}" onclick="add('${p.sku}',+this.previousElementSibling.children[1].textContent||1)">Add to bag</button></div>
+ <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">1</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button class="btn" data-sku="${p.sku}" onclick="add('${p.sku}',+($('qtyv').textContent)||1)">Add to bag</button></div>
  <div class="pdesc" id="pdesc"><p class="muted">Loading description…</p></div><ul><li><b>Shipping</b>Same-day shipping on orders before 3 PM CT</li><li><b>Category</b>${p.cats.join(' · ')}</li><li><b>Use</b>${c=='Lido Cream'?'External use only. Follow label directions. For trained beauty professionals.':c=='Treatments'?'Professional-use item for trained, qualified professionals.':'Cosmetic use. Follow label directions.'}</li><li><b>Questions</b>+1-815-505-4387 · bloop.store25@gmail.com</li></ul></div>`;
  rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}

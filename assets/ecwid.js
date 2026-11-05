@@ -37,8 +37,98 @@ function paint(){var M=window.ECWID_MAP||{};
  document.querySelectorAll('[data-sku]').forEach(function(el){var m=M[el.dataset.sku];if(!m)return;var out=!!SOLD[m.id];
   if(el.classList.contains('stk')){var t=out?'Sold out':'In stock';if(el.textContent!==t)el.textContent=t;el.style.cssText=out?'background:#eee;color:#888':'';}
   else{el.disabled=out;var t2=out?'Sold out':'Add to bag';if(el.textContent!==t2)el.textContent=t2;el.style.opacity=out?'.5':'';el.style.cursor=out?'not-allowed':'';}});}
-Promise.all(CATS.map(q)).then(function(rs){rs.forEach(function(d){['expandedCategories','collapsedCategories'].forEach(function(k){(d[k]||[]).forEach(function(c){(c.products||[]).forEach(function(p){SOLD[p.identifier.productId]=!!(p.flags&&p.flags.isAllVariationsSoldOut);DESC[p.identifier.productId]=p.description||'';MEDIA[p.identifier.productId]=((p.defaultOptionsOverrides||{}).variationOverrides||{}).mediaItems||[]})})})});paint();showDesc();showGallery();})
- .catch(function(){showDesc();document.querySelectorAll('.stk').forEach(function(el){el.textContent='Same-day ship'})});
+var SITE_CATS={ 'Best Sellers':1, 'Devices':1, 'Lido Creams':1, 'SkinCare':1, 'Treatments':1, 'New':1 };
+function extractCats(p){
+  var out=[],seen={};
+  (p.categoryPaths||[]).forEach(function(path){
+    (path.categoryPath||[]).forEach(function(node){
+      var n=node&&node.name; if(!n||!SITE_CATS[n]||seen[n])return; seen[n]=1; out.push(n);
+    });
+  });
+  return out;
+}
+function mainImage(p){
+  var media=((p.defaultOptionsOverrides||{}).variationOverrides||{}).mediaItems||[];
+  var pics=media.filter(function(x){return x&&x.type==='PICTURE'&&(x.image800pxUrl||x.image400pxUrl||x.image1500pxUrl)});
+  if(!pics.length)pics=media.filter(function(x){return x&&(x.image800pxUrl||x.image400pxUrl||x.image1500pxUrl)});
+  if(!pics.length)return null;
+  pics.sort(function(a,b){return (b.isMain?1:0)-(a.isMain?1:0)});
+  var x=pics[0]; return x.image800pxUrl||x.image400pxUrl||x.image1500pxUrl||null;
+}
+function productUrl(p){
+  var u=(p.urls&&(p.urls.directPageUrl||p.urls.proxyLinkUrl))||null;
+  if(!u)return null;
+  if(/^https?:/i.test(u))return u;
+  if(u.charAt(0)==='/')return 'https://bloopifyhub.com'+u;
+  return 'https://bloopifyhub.com/'+u;
+}
+function hasOpts(p){
+  var o=p.options; if(!o)return false;
+  if(Array.isArray(o))return o.length>0;
+  if(typeof o==='object')return Object.keys(o).length>0;
+  return !!o;
+}
+function mergeLiveCatalog(byId){
+  var M=window.ECWID_MAP=Object.assign({},window.ECWID_MAP||{});
+  var P=window.PRODUCTS=window.PRODUCTS||[];
+  var skuById={}, idxBySku={};
+  Object.keys(M).forEach(function(sku){ var m=M[sku]; if(m&&m.id)skuById[Number(m.id)]=sku; });
+  P.forEach(function(item,i){ if(item&&item.sku)idxBySku[item.sku]=i; });
+  Object.keys(byId).forEach(function(pidStr){
+    var p=byId[pidStr], pid=Number(pidStr);
+    if(!pid||!p)return;
+    var sku=skuById[pid];
+    if(!sku){
+      var ecSku=p.identifier&&p.identifier.sku; sku=(ecSku&&String(ecSku).trim())||('E'+pid);
+      skuById[pid]=sku;
+    }
+    var po=((p.defaultOptionsOverrides||{}).pricesOverrides)||{};
+    var price=po.basePrice; if(price==null||price==='')return;
+    price=Number(price); if(!isFinite(price))return;
+    var strike=po.strikethroughPrice&&po.strikethroughPrice.price; strike=(strike==null||strike==='')?null:Number(strike);
+    if(strike!=null&&!isFinite(strike))strike=null;
+    var cats=extractCats(p);
+    var eimg=mainImage(p);
+    var name=(p.name||'').trim()||('Product '+pid);
+    var opts=hasOpts(p);
+    var url=productUrl(p);
+    var prev=M[sku]||{};
+    M[sku]={id:pid, opts:opts, url:url||prev.url||null};
+    if(idxBySku[sku]!=null){
+      var cur=P[idxBySku[sku]];
+      cur.price=price; cur.compare=strike;
+      if(name)cur.name=name;
+      if(cats.length)cur.cats=cats;
+      if(eimg){cur.eimg=eimg; if(!cur.img)cur.img=eimg;}
+    }else{
+      P.push({sku:sku, name:name, price:price, compare:strike, cats:cats.length?cats:['New'], img:null, eimg:eimg});
+      idxBySku[sku]=P.length-1;
+    }
+  });
+  window.ECWID_MAP=M; window.PRODUCTS=P;
+  window.__ECWID_CATALOG_SYNCED=true;
+  if(typeof window.renderCatalog==='function')try{window.renderCatalog()}catch(e){console.warn('renderCatalog',e)}
+}
+Promise.all(CATS.map(q)).then(function(rs){
+  var byId={};
+  rs.forEach(function(d){['expandedCategories','collapsedCategories'].forEach(function(k){(d[k]||[]).forEach(function(c){(c.products||[]).forEach(function(p){
+    var pid=p.identifier&&p.identifier.productId; if(!pid)return;
+    SOLD[pid]=!!(p.flags&&p.flags.isAllVariationsSoldOut);
+    DESC[pid]=p.description||'';
+    MEDIA[pid]=((p.defaultOptionsOverrides||{}).variationOverrides||{}).mediaItems||[];
+    // Keep first-seen product payload; later responses may add more category paths.
+    if(!byId[pid])byId[pid]=p;
+    else{
+      var a=byId[pid].categoryPaths||[]; var b=p.categoryPaths||[];
+      if(b.length)byId[pid].categoryPaths=a.concat(b);
+      if(!byId[pid].options&&p.options)byId[pid].options=p.options;
+    }
+  })})})});
+  try{mergeLiveCatalog(byId)}catch(e){console.warn('mergeLiveCatalog',e);window.__ECWID_CATALOG_SYNCED=true}
+  paint();showDesc();showGallery();favPaint();
+})
+ .catch(function(){window.__ECWID_CATALOG_SYNCED=true;if(typeof window.renderCatalog==='function')try{window.renderCatalog()}catch(e){}
+  showDesc();document.querySelectorAll('.stk').forEach(function(el){el.textContent='Same-day ship'})});
 // Live product description (HTML from Ecwid, sanitized to basic formatting).
 var OK={P:1,BR:1,B:1,STRONG:1,I:1,EM:1,U:1,UL:1,OL:1,LI:1,H2:1,H3:1,H4:1,A:1,SPAN:1,DIV:1};
 function clean(html){var doc=new DOMParser().parseFromString(html,'text/html');

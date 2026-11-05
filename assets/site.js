@@ -1,4 +1,4 @@
-const P=window.PRODUCTS,$=id=>document.getElementById(id);
+const $=id=>document.getElementById(id);
 const PAGE=document.body.dataset.page||'home';
 const NAV=[['index.html','Home','home'],['shop.html','Shop All','shop'],['skincare.html','SkinCare','skincare'],['lido-creams.html','Lido Creams','lido'],['devices.html','Devices','devices'],['treatments.html','Treatments','treatments'],['about.html','About','about'],['contact.html','Contact','contact']];
 const SHIP='Same-day shipping on orders before 3 PM CT';
@@ -15,10 +15,11 @@ document.body.insertAdjacentHTML('beforeend',`<div class="trust w" style="margin
 <div><h5>Contact</h5><ul><li>Chicago, IL</li><li>Mon–Fri 9 AM–5 PM CT</li><li>Sat 9 AM–12 PM CT</li><li><a href="tel:+18155054387">+1-815-505-4387</a></li><li><a href="mailto:bloop.store25@gmail.com">bloop.store25@gmail.com</a></li></ul></div></div>
 <div class="lg">Products are sold for cosmetic and professional beauty use. Statements are not intended to diagnose, treat, cure or prevent any disease. Topical creams: external use only, follow label directions. Treatments and professional items are intended for trained professionals. Orders placed before 3 PM CT Mon–Fri ship the same day. © 2026 Bloop</div></div></footer>
 <div class="tb"><a href="index.html"><span>${ic.home}Home</span></a><a href="shop.html"><span>${ic.m}Shop</span></a><a href="cart.html#!/~/favorites"><span>${ic.h}Wishlist</span></a><a href="cart.html#!/~/account"><span>${ic.u}Account</span></a><a href="cart.html"><span>${ic.b}Bag</span></a></div><div class="toast" id="toast"></div>`);
-const inC=c=>P.filter(p=>p.cats.includes(c));
+const products=()=>window.PRODUCTS||[];
+const inC=c=>products().filter(p=>p.cats&&p.cats.includes(c));
 const label=p=>p.cats.includes('Lido Creams')?'Lido Cream':p.cats.filter(c=>c!='Best Sellers'&&c!='New')[0]||'Bloop';
 const img=p=>(p.img||p.eimg)?`<img src="${p.img||p.eimg}" alt="${p.name}" loading="lazy"${p.img&&p.eimg?` onerror="this.onerror=null;this.src='${p.eimg}'"`:''}>`:`<div style="width:40%;height:55%;background:#fff;border-radius:10px"></div>`;
-const money=n=>'$'+n.toFixed(2);
+const money=n=>'$'+(+n).toFixed(2);
 function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+p.sku;
 return `<div class="card"><button type="button" class="hrt" style="top:10px;z-index:5" title="Save to wishlist" data-fav="${p.sku}" aria-label="Save to wishlist" aria-pressed="false">♡</button>
 <a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</span>
@@ -27,31 +28,47 @@ return `<div class="card"><button type="button" class="hrt" style="top:10px;z-in
 <span class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></span></a>
 <button type="button" class="addb" data-sku="${p.sku}" onclick="event.stopPropagation();add('${p.sku}')">Add to bag</button></div>`}
 function chgQty(d){const e=$('qtyv');if(!e)return;e.textContent=Math.max(1,(+e.textContent||1)+d)}
-function toast(t){const e=$('toast');e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1600)}
+function toast(t){const e=$('toast');if(!e)return;e.textContent=t;e.classList.add('s');setTimeout(()=>e.classList.remove('s'),1600)}
 const rail=(id,a,rank)=>{const e=$(id);if(e)e.innerHTML=a.map((p,i)=>card(p,i,rank)).join('')};
-// category / shop pages
 const CAT={shop:null,skincare:'SkinCare',lido:'Lido Creams',devices:'Devices',treatments:'Treatments'};
-if($('plist')){let base=CAT[PAGE]?inC(CAT[PAGE]):P.slice();const q=new URLSearchParams(location.search).get('q');const cat=new URLSearchParams(location.search).get('cat');
- if(cat){base=inC(cat);const qi=$('qinfo');if(qi)qi.textContent=cat;const h1=document.querySelector('.ph h1');if(h1)h1.textContent=cat;const ey=document.querySelector('.pbn .ey');if(ey)ey.textContent='BLOOP · '+cat.toUpperCase();const crumb=document.querySelector('.crumb');if(crumb)crumb.innerHTML='<a href="index.html">Home</a> › '+cat;document.title=cat+' | Bloop Beauty Shop';const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute('content','Shop '+cat+' at Bloop — K-beauty favorites with same-day shipping on orders before 3 PM CT.');const ogt=document.querySelector('meta[property="og:title"]');if(ogt)ogt.setAttribute('content',document.title);const canon=document.querySelector('link[rel="canonical"]');if(canon)canon.href='https://bloopifyhub.com/shop.html?cat='+encodeURIComponent(cat)}
- if(q){base=base.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));$('qinfo').textContent=`Results for “${q}”`;document.title='Search: '+q+' | Bloop'}
- const ps=new URLSearchParams(location.search).get('sort');if(ps)$('sort').value=ps;const draw=()=>{let a=base.slice();const s=$('sort').value;if(s=='lo')a.sort((x,y)=>x.price-y.price);if(s=='hi')a.sort((x,y)=>y.price-x.price);if(s=='new')a.sort((x,y)=>y.cats.includes('New')-x.cats.includes('New'));
- $('cnt').textContent=a.length+' products';$('plist').innerHTML=a.map(p=>card(p)).join('')||'<p>No products found.</p>'};$('sort').onchange=draw;draw()}
-// home
-if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
- $('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105j" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
- const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
- $('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
- rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
- if(sk[1])$('bn1').src=sk[1].img||sk[1].eimg;if(dv[1])$('bn2').src=dv[1].img||dv[1].eimg}
-// product
-if(PAGE=='product'){const p=P.find(x=>x.sku==new URLSearchParams(location.search).get('id'))||P[0];document.title=p.name+' — Bloop';
- const _img=p.img||p.eimg||'https://bloopifyhub.com/assets/img/hero-coming-soon.jpg';const _abs=/^https?:/.test(_img)?_img:('https://bloopifyhub.com/'+_img.replace(/^\//,''));
- const _desc='Shop '+p.name+' at Bloop. Same-day shipping on orders before 3 PM CT.';
- [['meta[name="description"]','content',_desc],['meta[property="og:title"]','content',document.title],['meta[property="og:description"]','content',_desc],['meta[property="og:image"]','content',_abs],['meta[name="twitter:title"]','content',document.title],['meta[name="twitter:description"]','content',_desc],['meta[name="twitter:image"]','content',_abs],['link[rel="canonical"]','href','https://bloopifyhub.com/product.html?id='+encodeURIComponent(p.sku)]].forEach(([sel,attr,val])=>{const el=document.querySelector(sel);if(el)el.setAttribute(attr,val)});
- const c=label(p),u={'Lido Cream':'lido-creams.html','SkinCare':'skincare.html','Devices':'devices.html','Treatments':'treatments.html'}[c]||'shop.html';
- const off=p.compare?Math.round((1-p.price/p.compare)*100):0;
- $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
+let shopMetaDone=false;
+window.renderCatalog=function(){
+ const P=products();
+ // category / shop pages
+ if($('plist')){let base=CAT[PAGE]?inC(CAT[PAGE]):P.slice();const q=new URLSearchParams(location.search).get('q');const cat=new URLSearchParams(location.search).get('cat');
+  if(cat){base=inC(cat);if(!shopMetaDone){shopMetaDone=true;const qi=$('qinfo');if(qi)qi.textContent=cat;const h1=document.querySelector('.ph h1');if(h1)h1.textContent=cat;const ey=document.querySelector('.pbn .ey');if(ey)ey.textContent='BLOOP · '+cat.toUpperCase();const crumb=document.querySelector('.crumb');if(crumb)crumb.innerHTML='<a href="index.html">Home</a> › '+cat;document.title=cat+' | Bloop Beauty Shop';const md=document.querySelector('meta[name="description"]');if(md)md.setAttribute('content','Shop '+cat+' at Bloop — K-beauty favorites with same-day shipping on orders before 3 PM CT.');const ogt=document.querySelector('meta[property="og:title"]');if(ogt)ogt.setAttribute('content',document.title);const canon=document.querySelector('link[rel="canonical"]');if(canon)canon.href='https://bloopifyhub.com/shop.html?cat='+encodeURIComponent(cat)}}
+  if(q){base=base.filter(p=>p.name.toLowerCase().includes(q.toLowerCase()));const qi=$('qinfo');if(qi)qi.textContent=`Results for “${q}”`;document.title='Search: '+q+' | Bloop'}
+  const sortEl=$('sort');const ps=new URLSearchParams(location.search).get('sort');if(ps&&sortEl)sortEl.value=ps;
+  const draw=()=>{let a=base.slice();const s=sortEl?sortEl.value:'';if(s=='lo')a.sort((x,y)=>x.price-y.price);if(s=='hi')a.sort((x,y)=>y.price-x.price);if(s=='new')a.sort((x,y)=>y.cats.includes('New')-x.cats.includes('New'));
+  if($('cnt'))$('cnt').textContent=a.length+' products';$('plist').innerHTML=a.map(p=>card(p)).join('')||'<p>No products found.</p>'};
+  if(sortEl)sortEl.onchange=draw;draw()}
+ // home
+ if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105m" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
+  if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
+  rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
+  if(sk[1]&&$('bn1'))$('bn1').src=sk[1].img||sk[1].eimg;if(dv[1]&&$('bn2'))$('bn2').src=dv[1].img||dv[1].eimg}
+ // product
+ if(PAGE=='product'&&$('pd')){const id=new URLSearchParams(location.search).get('id');
+  let p=id?P.find(x=>x.sku==id):null;
+  if(!p&&!id)p=P[0];
+  if(!p){
+   if(id&&/^E\d+$/.test(id)&&!window.__ECWID_CATALOG_SYNCED)$('pd').innerHTML='<p class="muted">Loading product…</p>';
+   else $('pd').innerHTML='<p class="muted">Product not found. <a href="shop.html">Browse shop</a></p>';
+   return;
+  }
+  document.title=p.name+' — Bloop';
+  const _img=p.img||p.eimg||'https://bloopifyhub.com/assets/img/hero-coming-soon.jpg';const _abs=/^https?:/.test(_img)?_img:('https://bloopifyhub.com/'+_img.replace(/^\//,''));
+  const _desc='Shop '+p.name+' at Bloop. Same-day shipping on orders before 3 PM CT.';
+  [['meta[name="description"]','content',_desc],['meta[property="og:title"]','content',document.title],['meta[property="og:description"]','content',_desc],['meta[property="og:image"]','content',_abs],['meta[name="twitter:title"]','content',document.title],['meta[name="twitter:description"]','content',_desc],['meta[name="twitter:image"]','content',_abs],['link[rel="canonical"]','href','https://bloopifyhub.com/product.html?id='+encodeURIComponent(p.sku)]].forEach(([sel,attr,val])=>{const el=document.querySelector(sel);if(el)el.setAttribute(attr,val)});
+  const c=label(p),u={'Lido Cream':'lido-creams.html','SkinCare':'skincare.html','Devices':'devices.html','Treatments':'treatments.html'}[c]||'shop.html';
+  const off=p.compare?Math.round((1-p.price/p.compare)*100):0;
+  const qtyKeep=$('qtyv')?$('qtyv').textContent:'1';
+  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</div>
  <div class="tg" style="margin-top:12px">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Professional use</span>':''}<span class="stk" data-sku="${p.sku}">Checking stock…</span></div>
- <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">1</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button class="btn" data-sku="${p.sku}" onclick="add('${p.sku}',+($('qtyv').textContent)||1)">Add to bag</button></div>
+ <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">${qtyKeep||1}</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button class="btn" data-sku="${p.sku}" onclick="add('${p.sku}',+($('qtyv').textContent)||1)">Add to bag</button></div>
  <div class="pdesc" id="pdesc"><p class="muted">Loading description…</p></div><ul><li><b>Shipping</b>Same-day shipping on orders before 3 PM CT</li><li><b>Category</b>${p.cats.join(' · ')}</li><li><b>Use</b>${c=='Lido Cream'?'External use only. Follow label directions. For trained beauty professionals.':c=='Treatments'?'Professional-use item for trained, qualified professionals.':'Cosmetic use. Follow label directions.'}</li><li><b>Questions</b>+1-815-505-4387 · bloop.store25@gmail.com</li></ul></div>`;
- rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}
+  rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}
+};
+window.renderCatalog();

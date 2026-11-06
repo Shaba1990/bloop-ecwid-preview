@@ -127,6 +127,77 @@ function refreshOptPrice(){
   if(s)s.style.display=changed?'none':'';
 }
 window.refreshOptPrice=refreshOptPrice;
+function reviewSku(r){
+  if(!r||typeof r!=='object')return '';
+  const id=r.tiktok_product_id==null?'':String(r.tiktok_product_id);
+  const hit=id&&window.TIKTOK_SKU_MAP&&window.TIKTOK_SKU_MAP[id];
+  const sku=(hit&&hit.sku)||r.sku;
+  return sku==null?'':String(sku);
+}
+function reviewsFor(sku){
+  const want=String(sku||'');
+  if(!want)return [];
+  const list=(window.REVIEWS||[]).filter(r=>reviewSku(r)===want);
+  list.sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')));
+  return list;
+}
+function reviewAvg(list){
+  const nums=list.map(r=>+r.rating).filter(n=>isFinite(n));
+  if(!nums.length)return null;
+  return nums.reduce((s,n)=>s+n,0)/nums.length;
+}
+function fmtAvg(n){return (Math.round(n*10)/10).toFixed(1)}
+function starsHtml(score){
+  const pct=Math.max(0,Math.min(100,(+score||0)/5*100));
+  return `<span class="stars" style="--w:${pct.toFixed(2)}%" aria-hidden="true"><i></i></span>`;
+}
+const RV_MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(s){
+  const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if(!m)return '';
+  const mo=RV_MONTHS[+m[2]-1];
+  return mo?`${mo} ${+m[3]}, ${m[1]}`:'';
+}
+function reviewItem(r){
+  const ratingNum=+r.rating;
+  const rating=isFinite(ratingNum)?Math.max(0,Math.min(5,ratingNum)):null;
+  const text=r.text==null?'':String(r.text).trim();
+  const when=fmtDate(r.date);
+  const iso=(String(r.date||'').match(/^(\d{4}-\d{2}-\d{2})/)||[])[1]||'';
+  const stars=rating==null?'':starsHtml(rating);
+  const body=text?`<p class="rv-text">${esc(text).replace(/\n/g,'<br>')}</p>`:(rating==null?'':`<p class="rv-text rv-only">Rated ${rating} star${rating===1?'':'s'}</p>`);
+  return `<article class="rv"><div class="rv-top">${stars}<span class="rv-who">Verified buyer</span>${when?`<time datetime="${esc(iso)}">${esc(when)}</time>`:''}</div>${body}</article>`;
+}
+function reviewChip(sku){
+  const list=reviewsFor(sku),avg=reviewAvg(list);
+  if(!list.length||avg==null)return '';
+  const n=list.length,label=`Rated ${fmtAvg(avg)} out of 5 from ${n} review${n===1?'':'s'}`;
+  return `<span class="rv-card" aria-label="${esc(label)}"><span class="star" aria-hidden="true">★</span> ${fmtAvg(avg)} <em>(${n})</em></span>`;
+}
+function reviewSummary(sku){
+  const list=reviewsFor(sku),avg=reviewAvg(list);
+  if(!list.length||avg==null)return '';
+  const n=list.length,label=`Rated ${fmtAvg(avg)} out of 5 from ${n} review${n===1?'':'s'}`;
+  return `<a class="rv-sum" href="#reviews" aria-label="${esc(label)}">${starsHtml(avg)}<b>${fmtAvg(avg)}</b><span>${n} review${n===1?'':'s'}</span></a>`;
+}
+function reviewSection(sku){
+  const list=reviewsFor(sku);
+  if(!list.length)return '';
+  const avg=reviewAvg(list),n=list.length,open=window.__rvOpen===sku,PRE=8;
+  const head=list.slice(0,PRE).map(reviewItem).join('');
+  const tail=list.slice(PRE);
+  const rest=tail.length?`<div class="rv-list" id="rv-rest"${open?'':' hidden'}>${tail.map(reviewItem).join('')}</div>`:'';
+  const more=tail.length&&!open?`<button type="button" class="rv-more" data-for="${esc(sku)}" onclick="showAllReviews(this)">Show all ${n} reviews</button>`:'';
+  const avgLine=avg==null?`${n} review${n===1?'':'s'}`:`${starsHtml(avg)}<span>${fmtAvg(avg)} average · ${n} review${n===1?'':'s'}</span>`;
+  return `<section class="reviews" id="reviews"><div class="rv-head"><h2>Reviews</h2><p>${avgLine}</p></div><p class="rv-note">Customer reviews from TikTok Shop.</p><div class="rv-list">${head}</div>${rest}${more}</section>`;
+}
+function showAllReviews(btn){
+  if(!btn)return;
+  window.__rvOpen=btn.getAttribute('data-for')||'';
+  const rest=document.getElementById('rv-rest');
+  if(rest)rest.hidden=false;
+  btn.remove();
+}
 function card(p,i,rank){const off=p.compare?Math.round((1-p.price/p.compare)*100):0;const u='product.html?id='+encodeURIComponent(p.sku);
 const choose=!!((window.ECWID_MAP||{})[p.sku]||{}).opts;
 const buy=choose
@@ -136,6 +207,7 @@ return `<div class="card"><button type="button" class="hrt" style="top:10px;z-in
 <a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</span>
 <span class="bd">${label(p)}</span><span class="nm">${p.name.toLowerCase()}</span>
 <span class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</span>
+${reviewChip(p.sku)}
 <span class="tg">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Pro use</span>':''}<span>Same-day ship</span></span></a>
 ${buy}</div>`}
 function chgQty(d){const e=$('qtyv');if(!e)return;e.textContent=Math.max(1,(+e.textContent||1)+d)}
@@ -155,7 +227,7 @@ window.renderCatalog=function(){
   if(sortEl)sortEl.onchange=draw;draw()}
  // home
  if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
-  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105n" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105o" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
   const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
   if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
   rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
@@ -180,10 +252,11 @@ window.renderCatalog=function(){
   const optHtml=optionFields(p.sku);
   const canAdd=optionsSatisfied(p.sku);
   $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr" id="pprice" data-base="${p.price}">${off?`<em>${off}%</em>`:''}<span id="ppricev">${money(p.price)}</span>${off?`<s>${money(p.compare)}</s>`:''}</div>
+ ${reviewSummary(p.sku)}
  <div class="tg" style="margin-top:12px">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Professional use</span>':''}<span class="stk" data-sku="${p.sku}">Checking stock…</span></div>
  ${optHtml}
  <div class="qty"><div class="q"><button type="button" aria-label="Decrease quantity" onclick="chgQty(-1)">−</button><span id="qtyv" style="width:26px;text-align:center">${qtyKeep||1}</span><button type="button" aria-label="Increase quantity" onclick="chgQty(1)">+</button></div><button type="button" class="btn" data-sku="${esc(p.sku)}"${canAdd?'':' disabled'} onclick="add('${jsStr(p.sku)}',+($('qtyv').textContent)||1)">Add to bag</button></div>
- <div class="pdesc" id="pdesc"><p class="muted">Loading description…</p></div><ul><li><b>Shipping</b>Same-day shipping on orders before 3 PM CT</li><li><b>Category</b>${p.cats.join(' · ')}</li><li><b>Use</b>${c=='Lido Cream'?'External use only. Follow label directions. For trained beauty professionals.':c=='Treatments'?'Professional-use item for trained, qualified professionals.':'Cosmetic use. Follow label directions.'}</li><li><b>Questions</b>+1-815-505-4387 · bloop.store25@gmail.com</li></ul></div>`;
+ <div class="pdesc" id="pdesc"><p class="muted">Loading description…</p></div><ul><li><b>Shipping</b>Same-day shipping on orders before 3 PM CT</li><li><b>Category</b>${p.cats.join(' · ')}</li><li><b>Use</b>${c=='Lido Cream'?'External use only. Follow label directions. For trained beauty professionals.':c=='Treatments'?'Professional-use item for trained, qualified professionals.':'Cosmetic use. Follow label directions.'}</li><li><b>Questions</b>+1-815-505-4387 · bloop.store25@gmail.com</li></ul></div>${reviewSection(p.sku)}`;
   refreshOptPrice();
   rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}
 };

@@ -151,3 +151,15 @@ div[class*="ec-footer"]{display:none!important;visibility:hidden!important;heigh
 .rv-more:hover{background:var(--ink);color:#fff}
 @media(max-width:900px){.reviews{margin-top:28px}.rv-head h2{font-size:22px}.rv time{margin-left:0}.rv-card{font-size:12px}}
 
+/* Live chat launcher (Ecwid Chatway, or Chatra #chatra).
+   Mobile bottom = bottom-nav height + safe-area + gap. Desktop keeps the widget's own bottom-right inset.
+   --bloop-nav-h is the measured .tb height (site.js); 60px matches the bar before that runs. */
+:root{--bloop-nav-h:0px;--bloop-chat-gap:14px;--bloop-launcher-h:48px;--bloop-chat-bottom:calc(var(--bloop-nav-h) + env(safe-area-inset-bottom, 0px) + var(--bloop-chat-gap))}
+@media(max-width:900px){
+  :root{--bloop-nav-h:60px}
+  .chatway--container:not(.widget--open) .chatway--trigger-container,
+  #chatra.chatra--side-bottom:not(.chatra--expanded),
+  #chatra.chatra--pos-bottom:not(.chatra--expanded){bottom:var(--bloop-chat-bottom)!important}
+  .chatway--container{--quick-reply-bottom:calc(var(--bloop-chat-bottom) + var(--bloop-launcher-h) + 12px);--preview-only-bottom:calc(var(--bloop-chat-bottom) + var(--bloop-launcher-h) + 12px)}
+}
+

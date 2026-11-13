@@ -1,3 +1,8 @@
+// Chatra has no pixel offset in ChatraSetup (buttonPosition is a corner code only).
+// 'br' keeps the launcher bottom-right; the CSS variable below lifts it on mobile.
+window.ChatraSetup=window.ChatraSetup||{};
+if(!window.ChatraSetup.buttonPosition)window.ChatraSetup.buttonPosition='br';
+if(!window.ChatraSetup.buttonStyle)window.ChatraSetup.buttonStyle='round';
 const $=id=>document.getElementById(id);
 const PAGE=document.body.dataset.page||'home';
 const NAV=[['index.html','Home','home'],['shop.html','Shop All','shop'],['skincare.html','SkinCare','skincare'],['lido-creams.html','Lido Creams','lido'],['devices.html','Devices','devices'],['treatments.html','Treatments','treatments'],['about.html','About','about'],['contact.html','Contact','contact']];
@@ -227,7 +232,7 @@ window.renderCatalog=function(){
   if(sortEl)sortEl.onchange=draw;draw()}
  // home
  if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
-  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261105o" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113a" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
   const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
   if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
   rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
@@ -261,3 +266,25 @@ window.renderCatalog=function(){
   rail('r-rel',P.filter(x=>x.sku!=p.sku&&label(x)==c).slice(0,8))}
 };
 window.renderCatalog();
+// Publish the fixed bottom bar's height so the chat launcher can clear it.
+function syncChatLauncherOffset(){
+  const root=document.documentElement;
+  const mobile=window.matchMedia('(max-width:900px)').matches;
+  const tb=document.querySelector('.tb');
+  let h=0;
+  if(mobile&&tb){const r=tb.getBoundingClientRect();if(r.height>0)h=Math.round(r.height)}
+  root.style.setProperty('--bloop-nav-h',(h||(mobile?60:0))+'px');
+  const launcher=document.querySelector('.chatway--trigger-container')||document.getElementById('chatra');
+  if(launcher){const lr=launcher.getBoundingClientRect();if(lr.height>0)root.style.setProperty('--bloop-launcher-h',Math.round(lr.height)+'px')}
+}
+syncChatLauncherOffset();
+window.addEventListener('resize',syncChatLauncherOffset);
+if(window.ResizeObserver){const tb=document.querySelector('.tb');if(tb)new ResizeObserver(syncChatLauncherOffset).observe(tb)}
+// Chatway/Chatra inject after Ecwid. Poll briefly instead of watching the whole DOM.
+let chatTries=0;
+const chatPoll=setInterval(()=>{
+  chatTries++;
+  const launcher=document.querySelector('.chatway--trigger-container')||document.getElementById('chatra');
+  if(launcher&&launcher.getBoundingClientRect().height>0){syncChatLauncherOffset();clearInterval(chatPoll);return}
+  if(chatTries>40)clearInterval(chatPoll);
+},300);

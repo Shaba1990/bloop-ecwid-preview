@@ -1,0 +1,9 @@
+name = "bloop-newsletter"
+main = "worker.js"
+compatibility_date = "2026-11-13"
+workers_dev = true
+
+# Public store id only. The secret token is NOT a var.
+# Set it with: npx wrangler secret put ECWID_SECRET_TOKEN
+[vars]
+ECWID_STORE_ID = "138742751"

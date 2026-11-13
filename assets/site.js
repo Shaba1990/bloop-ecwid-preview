@@ -20,6 +20,54 @@ document.body.insertAdjacentHTML('beforeend',`<div class="trust w" style="margin
 <div><h5>Contact</h5><ul><li>Chicago, IL</li><li>Mon–Fri 9 AM–5 PM CT</li><li>Sat 9 AM–12 PM CT</li><li><a href="tel:+18155054387">+1-815-505-4387</a></li><li><a href="mailto:bloop.store25@gmail.com">bloop.store25@gmail.com</a></li></ul></div></div>
 <div class="lg">Products are sold for cosmetic and professional beauty use. Statements are not intended to diagnose, treat, cure or prevent any disease. Topical creams: external use only, follow label directions. Treatments and professional items are intended for trained professionals. Orders placed before 3 PM CT Mon–Fri ship the same day. © 2026 Bloop</div></div></footer>
 <div class="tb"><a href="index.html"><span>${ic.home}Home</span></a><a href="shop.html"><span>${ic.m}Shop</span></a><a href="cart.html#!/~/favorites"><span>${ic.h}Wishlist</span></a><a href="cart.html#!/~/account"><span>${ic.u}Account</span></a><a href="cart.html"><span>${ic.b}Bag</span></a></div><div class="toast" id="toast"></div>`);
+function newsletterBlock(){
+  return `<section class="nl"><div><h3>Get new arrivals & restock alerts</h3><p>Be first to know what's new at Bloop.</p><p class="nlmsg" role="status" aria-live="polite" hidden></p></div><form class="nlf" action="https://formsubmit.co/bloop.store25@gmail.com" method="POST"><input type="hidden" name="_subject" value="Bloop newsletter signup"><input type="hidden" name="_captcha" value="false"><input type="hidden" name="_next" value="https://bloopifyhub.com/index.html?subscribed=1"><input class="hp" type="text" name="bloop_hp" tabindex="-1" autocomplete="off" aria-hidden="true"><input type="email" name="email" placeholder="Your email" autocomplete="email" required><button class="btn" type="submit" style="border:0">Subscribe</button></form></section>`;
+}
+function newsletterEndpoint(){
+  const v=window.NEWSLETTER_ENDPOINT;
+  if(typeof v!=='string')return '';
+  const url=v.trim();
+  return /^https:\/\/[^/\s]+/i.test(url)?url:'';
+}
+function setNlMsg(form,text,kind){
+  const el=form.closest('.nl')&&form.closest('.nl').querySelector('.nlmsg');
+  if(!el){if(text)toast(text);return}
+  el.classList.remove('ok','bad');
+  if(!text){el.hidden=true;el.textContent='';return}
+  el.hidden=false;el.textContent=text;if(kind)el.classList.add(kind);
+}
+function wireNewsletter(form){
+  form.addEventListener('submit',function(ev){
+    const endpoint=newsletterEndpoint();
+    if(!endpoint)return;
+    ev.preventDefault();
+    const data=new FormData(form);
+    const email=String(data.get('email')||'').trim();
+    const bloop_hp=String(data.get('bloop_hp')||'').trim();
+    const btn=form.querySelector('button[type="submit"]');
+    const label=btn?btn.textContent:'';
+    if(btn){btn.disabled=true;btn.textContent='Subscribing…'}
+    setNlMsg(form,'','');
+    fetch(endpoint,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({email,bloop_hp})})
+      .then(function(res){return res.json().catch(function(){return {}}).then(function(body){return {res,body}})})
+      .then(function(out){
+        if(out.res.ok&&out.body&&out.body.ok){form.reset();setNlMsg(form,"You're on the list!",'ok');return}
+        const err=out.body&&out.body.error;
+        if(err==='invalid_email')setNlMsg(form,'Enter a valid email address.','bad');
+        else if(err==='rate_limited')setNlMsg(form,'Please wait a few minutes and try again.','bad');
+        else setNlMsg(form,'Could not subscribe. Please try again.','bad');
+      })
+      .catch(function(){setNlMsg(form,'Could not subscribe. Please try again.','bad')})
+      .finally(function(){if(btn){btn.disabled=false;btn.textContent=label||'Subscribe'}});
+  });
+}
+if(!document.querySelector('form.nlf')){
+  const trust=document.querySelector('.trust');
+  const block='<div class="w">'+newsletterBlock()+'</div>';
+  if(trust)trust.insertAdjacentHTML('beforebegin',block);
+  else document.body.insertAdjacentHTML('beforeend',block);
+}
+document.querySelectorAll('form.nlf').forEach(wireNewsletter);
 const products=()=>window.PRODUCTS||[];
 const inC=c=>products().filter(p=>p.cats&&p.cats.includes(c));
 const label=p=>p.cats.includes('Lido Creams')?'Lido Cream':p.cats.filter(c=>c!='Best Sellers'&&c!='New')[0]||'Bloop';
@@ -232,7 +280,7 @@ window.renderCatalog=function(){
   if(sortEl)sortEl.onchange=draw;draw()}
  // home
  if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
-  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113a" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113b" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
   const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
   if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
   rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));

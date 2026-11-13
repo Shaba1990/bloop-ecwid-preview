@@ -3,4 +3,4 @@
 // fallback (bloop.store25@gmail.com) so the form still works.
 // After deploy, set this to the Worker URL, for example:
 // window.NEWSLETTER_ENDPOINT = "https://bloop-newsletter.<your-subdomain>.workers.dev";
-window.NEWSLETTER_ENDPOINT = "";
+window.NEWSLETTER_ENDPOINT = "https://bloop-newsletter.bloopifyhub.workers.dev";

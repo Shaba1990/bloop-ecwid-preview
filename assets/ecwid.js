@@ -183,6 +183,56 @@ function normOptions(p){
     return {name:name,type:type,required:!!o.required,choices:choices};
   }).filter(Boolean);
 }
+function normPhrase(s){return String(s==null?'':s).replace(/\s+/g,' ').trim().toLowerCase()}
+function onlyAtPhrase(s){return normPhrase(s)==='only at bloop'}
+function attrTruthy(v){
+  if(v===true||v===1)return true;
+  var s=normPhrase(v);
+  return s==='yes'||s==='true'||s==='1';
+}
+function attrLabel(a){
+  if(!a||typeof a!=='object')return '';
+  var n=a.name||a.title||a.attributeName||'';
+  if(!n&&a.nameTranslated&&typeof a.nameTranslated==='object')n=a.nameTranslated.en||'';
+  return normPhrase(n);
+}
+function attrRaw(a){
+  if(!a||typeof a!=='object')return '';
+  if(a.value!=null&&String(a.value).trim()!=='')return a.value;
+  var tr=a.valueTranslated;
+  if(tr&&typeof tr==='object')return tr.en||'';
+  return a.value;
+}
+function productAttrs(p){
+  var out=[];
+  function add(list){
+    if(Array.isArray(list)){list.forEach(function(a){if(a)out.push(a)});return}
+    if(list&&typeof list==='object')Object.keys(list).forEach(function(k){if(list[k])out.push(list[k])});
+  }
+  if(!p)return out;
+  add(p.attributes);
+  try{add((((p.defaultOptionsOverrides||{}).variationOverrides||{}).attributes))}catch(e){}
+  return out;
+}
+function ribbonRaw(p){
+  if(!p)return '';
+  var r=p.ribbon;
+  if((r==null||r==='')&&Array.isArray(p.ribbons)&&p.ribbons.length)r=p.ribbons[0];
+  if(r&&typeof r==='object')return r.text||r.name||'';
+  if(typeof r==='string')return r;
+  return p.ribbonText||'';
+}
+// Exclusive sticker. Ecwid ribbon text "Only at Bloop" (any case, trimmed),
+// or a product attribute of that name set to yes/true. The phrase is not
+// also printed as a plain ribbon label.
+function isOnlyAtBloop(p){
+  if(onlyAtPhrase(ribbonRaw(p)))return true;
+  var attrs=productAttrs(p);
+  for(var i=0;i<attrs.length;i++){
+    if(attrLabel(attrs[i])==='only at bloop'&&attrTruthy(attrRaw(attrs[i])))return true;
+  }
+  return false;
+}
 function mergeLiveCatalog(byId){
   var M=window.ECWID_MAP=Object.assign({},window.ECWID_MAP||{});
   var P=window.PRODUCTS=window.PRODUCTS||[];
@@ -212,15 +262,17 @@ function mergeLiveCatalog(byId){
     if(pre&&typeof pre==='object'&&!Array.isArray(pre))window.ECWID_PRE[pid]=pre;
     var url=productUrl(p);
     var prev=M[sku]||{};
+    var onlyAt=isOnlyAtBloop(p);
     M[sku]={id:pid, opts:opts, url:url||prev.url||null};
     if(idxBySku[sku]!=null){
       var cur=P[idxBySku[sku]];
       cur.price=price; cur.compare=strike;
+      cur.onlyAt=onlyAt;
       if(name)cur.name=name;
       if(cats.length)cur.cats=cats;
       if(eimg){cur.eimg=eimg; if(!cur.img)cur.img=eimg;}
     }else{
-      P.push({sku:sku, name:name, price:price, compare:strike, cats:cats.length?cats:['New'], img:null, eimg:eimg});
+      P.push({sku:sku, name:name, price:price, compare:strike, cats:cats.length?cats:['New'], img:null, eimg:eimg, onlyAt:onlyAt});
       idxBySku[sku]=P.length-1;
     }
   });
@@ -241,6 +293,14 @@ Promise.all(CATS.map(q)).then(function(rs){
       var a=byId[pid].categoryPaths||[]; var b=p.categoryPaths||[];
       if(b.length)byId[pid].categoryPaths=a.concat(b);
       if(!byId[pid].options&&p.options)byId[pid].options=p.options;
+      if(!byId[pid].ribbon&&p.ribbon)byId[pid].ribbon=p.ribbon;
+      if((!byId[pid].ribbons||!byId[pid].ribbons.length)&&p.ribbons&&p.ribbons.length)byId[pid].ribbons=p.ribbons;
+      var keptAttrs=productAttrs(byId[pid]),nextAttrs=productAttrs(p);
+      if(!keptAttrs.length&&nextAttrs.length){
+        var po=byId[pid].defaultOptionsOverrides=byId[pid].defaultOptionsOverrides||{};
+        var vo=po.variationOverrides=po.variationOverrides||{};
+        if(!vo.attributes||!vo.attributes.length)vo.attributes=nextAttrs;
+      }
       if(!hasChoiceBlocks(byId[pid])&&hasChoiceBlocks(p)){
         var po=byId[pid].defaultOptionsOverrides=byId[pid].defaultOptionsOverrides||{};
         po.pricesOverrides=po.pricesOverrides||{};

@@ -221,6 +221,9 @@ function reviewItem(r){
   const body=text?`<p class="rv-text">${esc(text).replace(/\n/g,'<br>')}</p>`:(rating==null?'':`<p class="rv-text rv-only">Rated ${rating} star${rating===1?'':'s'}</p>`);
   return `<article class="rv"><div class="rv-top">${stars}<span class="rv-who">Verified buyer</span>${when?`<time datetime="${esc(iso)}">${esc(when)}</time>`:''}</div>${body}</article>`;
 }
+function onlyAtBadge(){
+  return `<span class="onlyat" role="img" aria-label="Only at Bloop"><span class="onlyat-only" aria-hidden="true">ONLY</span><span class="onlyat-at" aria-hidden="true">AT</span><img class="onlyat-logo" src="assets/img/bloop-logo-white.svg" alt="" aria-hidden="true"></span>`;
+}
 function reviewChip(sku){
   const list=reviewsFor(sku),avg=reviewAvg(list);
   if(!list.length||avg==null)return '';
@@ -257,7 +260,7 @@ const buy=choose
   ? `<a class="addb" data-sku="${esc(p.sku)}" href="${u}">Choose options</a>`
   : `<button type="button" class="addb" data-sku="${esc(p.sku)}" onclick="event.stopPropagation();add('${jsStr(p.sku)}')">Add to bag</button>`;
 return `<div class="card"><button type="button" class="hrt" style="top:10px;z-index:5" title="Save to wishlist" data-fav="${p.sku}" aria-label="Save to wishlist" aria-pressed="false">♡</button>
-<a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}</span>
+<a class="card-link" href="${u}"><span class="im">${rank?`<span class="rk">${i+1}</span>`:''}${img(p)}${p.onlyAt?onlyAtBadge():''}</span>
 <span class="bd">${label(p)}</span><span class="nm">${p.name.toLowerCase()}</span>
 <span class="pr">${off?`<em>${off}%</em>`:''}${money(p.price)}${off?`<s>${money(p.compare)}</s>`:''}</span>
 ${reviewChip(p.sku)}
@@ -280,7 +283,7 @@ window.renderCatalog=function(){
   if(sortEl)sortEl.onchange=draw;draw()}
  // home
  if(PAGE=='home'){const sk=inC('SkinCare'),li=inC('Lido Creams'),dv=inC('Devices');
-  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113c" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
+  if($('heroimgs'))$('heroimgs').innerHTML='<img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113d" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums">';
   const C=[['SkinCare','skincare.html',sk],['Lido Creams','lido-creams.html',li],['Devices','devices.html',dv],['Treatments','treatments.html',inC('Treatments')],['New','shop.html?sort=new',inC('New')],['Shop All','shop.html',inC('Best Sellers')]];
   if($('cats'))$('cats').innerHTML=C.map(([n,u,a],i)=>`<a class="cat" href="${u}"><div class="c">${a[i==5?3:0]?img(a[i==5?3:0]):''}</div>${n}</a>`).join('');
   rail('r-best',inC('Best Sellers').slice(0,10),true);rail('r-skin',sk);rail('r-lido',li);rail('r-dev',dv);rail('r-new',inC('New'));
@@ -304,7 +307,7 @@ window.renderCatalog=function(){
   window.__optKeep=captureOpts();
   const optHtml=optionFields(p.sku);
   const canAdd=optionsSatisfied(p.sku);
-  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr" id="pprice" data-base="${p.price}">${off?`<em>${off}%</em>`:''}<span id="ppricev">${money(p.price)}</span>${off?`<s>${money(p.compare)}</s>`:''}</div>
+  $('pd').innerHTML=`<div class="crumb" style="grid-column:1/-1;margin:0"><a href="index.html">Home</a> › <a href="${u}">${c}</a> › ${p.name.toLowerCase()}</div><div class="gal"><div class="imframe">${p.onlyAt?onlyAtBadge():''}<div class="im" id="pim" style="aspect-ratio:1">${img(p)}</div></div><div class="thumbs" id="pthumbs"></div></div><div><div class="bd">${c} · SKU ${p.sku}</div><h1>${p.name.toLowerCase()}</h1><div class="pr" id="pprice" data-base="${p.price}">${off?`<em>${off}%</em>`:''}<span id="ppricev">${money(p.price)}</span>${off?`<s>${money(p.compare)}</s>`:''}</div>
  ${reviewSummary(p.sku)}
  <div class="tg" style="margin-top:12px">${p.cats.includes('New')?'<span class="n">NEW</span>':''}${p.cats.includes('Treatments')?'<span class="p">Professional use</span>':''}<span class="stk" data-sku="${p.sku}">Checking stock…</span></div>
  ${optHtml}

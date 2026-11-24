@@ -15,8 +15,10 @@
 <meta name="twitter:image" content="https://bloopifyhub.com/assets/img/hero-coming-soon.jpg">
 <meta name="theme-color" content="#2C2A26">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Comfortaa:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- BLACK FRIDAY PROMO: remove this font with the promo block below and the CSS block in assets/style.css -->
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:wght@600;700&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="stylesheet" href="assets/style.css?v=20261113e">
+<link rel="stylesheet" href="assets/style.css?v=20261124bf">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Organization","@id":"https://bloopifyhub.com/#organization","name":"Bloop","url":"https://bloopifyhub.com/","logo":"https://bloopifyhub.com/assets/img/bloop-logo-600.png","email":"bloop.store25@gmail.com","telephone":"+1-815-505-4387","sameAs":[]},
@@ -24,7 +26,87 @@
 ]}
 </script>
 </head>
-<body data-page="home"><main class="w"><section class="hero"><div class="ht"><div class="ey">BLOOP · K-BEAUTY SHOP</div><h1>Your everyday<br>K-beauty shop.</h1><p>Korean skincare, beauty devices, pro-favorite Lido Creams and professional treatments — with same-day shipping on orders before 3 PM CT.</p><div><a class="btn" href="shop.html">Shop all</a><a class="btn o" href="shop.html?cat=Best%20Sellers">Explore Best Sellers</a></div>
+<body data-page="home"><main class="w">
+<!-- ========== BLACK FRIDAY PROMO (temporary) ==========
+     Display only — the owner creates coupon BF10 in Ecwid.
+     To remove: delete this whole comment through the matching END comment
+     (bar, banner, and the script at the bottom of this file), the Bodoni
+     font link in <head>, and the "BLACK FRIDAY PROMO" block at the bottom
+     of assets/style.css.
+     ===================================================== -->
+<div class="bf-bar" id="bf-bar">
+  <p class="bf-bar-text"><span class="bf-bar-shine">BLACK FRIDAY: 10% OFF EVERYTHING <span class="bf-bar-nowrap">with code <button type="button" class="bf-bar-code" data-bf-copy="BF10" aria-label="Copy discount code BF10">BF10</button></span></span></p>
+  <button type="button" class="bf-bar-x" aria-label="Dismiss Black Friday announcement">&times;</button>
+</div>
+<section class="bf-promo" aria-label="Black Friday — 10% off all products">
+  <svg class="bf-ribbon bf-ribbon-l" viewBox="0 0 160 520" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="bfRib" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#5C282C"/>
+        <stop offset="0.32" stop-color="#C98984"/>
+        <stop offset="0.48" stop-color="#F8EBE6"/>
+        <stop offset="0.62" stop-color="#A4565A"/>
+        <stop offset="1" stop-color="#6E3438"/>
+      </linearGradient>
+    </defs>
+    <path d="M96,-20 C36,50 128,100 58,168 C-8,236 132,268 64,346 C4,418 124,448 52,530" fill="none" stroke="#4A2226" stroke-width="46" stroke-linecap="round" opacity=".28"/>
+    <path d="M96,-20 C36,50 128,100 58,168 C-8,236 132,268 64,346 C4,418 124,448 52,530" fill="none" stroke="url(#bfRib)" stroke-width="34" stroke-linecap="round"/>
+    <path d="M88,-20 C28,50 120,100 50,168 C-16,236 124,268 56,346 C-4,418 116,448 44,530" fill="none" stroke="rgba(255,255,255,.55)" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+  <svg class="bf-ribbon bf-ribbon-br" viewBox="0 0 460 200" aria-hidden="true" focusable="false">
+    <path d="M-20,70 C70,20 130,150 230,96 C330,42 370,150 490,88" fill="none" stroke="#4A2226" stroke-width="44" stroke-linecap="round" opacity=".28"/>
+    <path d="M-20,70 C70,20 130,150 230,96 C330,42 370,150 490,88" fill="none" stroke="url(#bfRib)" stroke-width="32" stroke-linecap="round"/>
+    <path d="M-20,62 C70,12 130,142 230,88 C330,34 370,142 490,80" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="5" stroke-linecap="round"/>
+  </svg>
+  <svg class="bf-bow" viewBox="0 0 260 200" aria-hidden="true" focusable="false">
+    <defs>
+      <linearGradient id="bfBow" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F3D8D2"/>
+        <stop offset="0.22" stop-color="#B86A6C"/>
+        <stop offset="0.42" stop-color="#F8E8E3"/>
+        <stop offset="0.58" stop-color="#8E4548"/>
+        <stop offset="0.8" stop-color="#E7C4BE"/>
+        <stop offset="1" stop-color="#6A3034"/>
+      </linearGradient>
+      <linearGradient id="bfTail" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#D7A29C"/>
+        <stop offset="0.42" stop-color="#F7E6E1"/>
+        <stop offset="1" stop-color="#6E3438"/>
+      </linearGradient>
+    </defs>
+    <path fill="url(#bfTail)" d="M148 92c34 16 78 22 104 6 8-5 12 8 4 16-30 30-86 28-118-2-8-8-4-16 10-20z"/>
+    <path fill="url(#bfTail)" d="M118 98c-8 26-6 52 14 70 6 5-4 14-12 8-32-24-46-64-28-92 8-12 20-8 26 14z"/>
+    <path fill="url(#bfBow)" d="M124 86c-4-46-52-70-92-52-30 14-36 50-12 70 22 18 70 14 104-18z"/>
+    <path fill="url(#bfBow)" d="M136 84c6-48 62-66 100-44 28 16 30 52 4 70-24 16-72 10-104-26z"/>
+    <path fill="#5C282C" opacity=".3" d="M124 86c-22-26-58-36-82-26 24-2 56 8 82 26z"/>
+    <path fill="#5C282C" opacity=".3" d="M136 84c26-28 64-34 86-18-28 0-58 8-86 18z"/>
+    <path fill="#fff" opacity=".5" d="M62 52c22-10 42-6 52 10-20-2-38 0-52-10z"/>
+    <path fill="#fff" opacity=".42" d="M176 48c18-6 36 0 46 14-20-8-34-10-46-14z"/>
+    <ellipse cx="130" cy="90" rx="18" ry="15" fill="#7A3A3E"/>
+    <ellipse cx="130" cy="90" rx="18" ry="15" fill="url(#bfBow)"/>
+    <ellipse cx="124" cy="84" rx="7" ry="4.5" fill="#F8EBE6" opacity=".92"/>
+  </svg>
+  <div class="bf-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="bf-inner">
+    <div class="bf-brand">
+      <span class="bf-brand-line" aria-hidden="true"></span>
+      <img src="assets/img/bloop-logo-charcoal.svg" alt="bloop" width="98" height="32">
+      <span class="bf-brand-line" aria-hidden="true"></span>
+    </div>
+    <h2 class="bf-title"><span>BLACK</span><span>FRIDAY</span></h2>
+    <p class="bf-limited"><i aria-hidden="true"></i><span>Limited time only</span><i aria-hidden="true"></i></p>
+    <button type="button" class="bf-code" data-bf-copy="BF10" aria-label="Copy discount code BF10">
+      <span data-bf-label>CODE: BF10</span>
+      <span data-bf-note hidden>Copied!</span>
+    </button>
+    <p class="bf-off-wrap"><span class="bf-stroke" aria-hidden="true"></span><span class="bf-off">10% OFF</span></p>
+    <p class="bf-all">All products</p>
+    <a class="bf-cta" href="shop.html">Shop now</a>
+    <p class="bf-live" id="bf-live" role="status" aria-live="polite"></p>
+  </div>
+</section>
+<!-- ========== END BLACK FRIDAY PROMO ========== -->
+<section class="hero"><div class="ht"><div class="ey">BLOOP · K-BEAUTY SHOP</div><h1>Your everyday<br>K-beauty shop.</h1><p>Korean skincare, beauty devices, pro-favorite Lido Creams and professional treatments — with same-day shipping on orders before 3 PM CT.</p><div><a class="btn" href="shop.html">Shop all</a><a class="btn o" href="shop.html?cat=Best%20Sellers">Explore Best Sellers</a></div>
 <div class="chips"><a href="skincare.html">SkinCare</a><a href="lido-creams.html">Lido Creams</a><a href="devices.html">Devices</a><a href="treatments.html">Treatments</a></div></div><div class="hi" id="heroimgs"><img class="hero-flyer" src="assets/img/hero-coming-soon.jpg?v=20261113e" alt="Bloop Coming Soon — GHK-Cu, PDRN, Copper Peptide serums"></div></section>
 <div class="cats" id="cats"></div>
 <section class="sec"><div class="sh"><div><h2>Best Sellers</h2><p>What Bloop shoppers are buying right now.</p></div><a href="shop.html?cat=Best%20Sellers">View all ›</a></div><div class="rail" id="r-best"></div></section>
@@ -43,4 +125,58 @@
 <input type="email" name="email" placeholder="Your email" autocomplete="email" required>
 <button class="btn" type="submit" style="border:0">Subscribe</button>
 </form></section></main><script src="assets/config.js?v=20261113e"></script><script src="assets/products.js?v=20261113e"></script><script src="assets/tiktok-sku-map.js?v=20261113e"></script><script src="assets/reviews.js?v=20261113e"></script><script src="assets/ecwid-map.js?v=20261113e"></script><script src="assets/site.js?v=20261113e"></script><script src="assets/ecwid.js?v=20261113e"></script>
-<script>if(new URLSearchParams(location.search).get('subscribed')==='1'){history.replaceState({},'',location.pathname);toast("You're on the list!");}</script></body></html>
+<script>if(new URLSearchParams(location.search).get('subscribed')==='1'){history.replaceState({},'',location.pathname);toast("You're on the list!");}</script>
+<!-- BLACK FRIDAY PROMO script: remove with the promo block above and the CSS block in assets/style.css -->
+<script>
+(function(){
+  var KEY='bloop-bf10-bar';
+  var bar=document.getElementById('bf-bar');
+  if(bar){
+    var dismissed=false;
+    try{dismissed=localStorage.getItem(KEY)==='1';}catch(e){}
+    if(dismissed){bar.remove();}
+    else{
+      document.body.prepend(bar);
+      bar.classList.add('is-on');
+      var x=bar.querySelector('.bf-bar-x');
+      if(x)x.addEventListener('click',function(){
+        try{localStorage.setItem(KEY,'1');}catch(e){}
+        bar.remove();
+      });
+    }
+  }
+  var live=document.getElementById('bf-live');
+  function confirmCopy(btn){
+    var label=btn.querySelector('[data-bf-label]');
+    var note=btn.querySelector('[data-bf-note]');
+    if(label&&note){
+      label.hidden=true;note.hidden=false;
+      clearTimeout(btn._bfT);
+      btn._bfT=setTimeout(function(){note.hidden=true;label.hidden=false;},1600);
+    }else{
+      var orig=btn.getAttribute('data-bf-orig')||btn.textContent;
+      btn.setAttribute('data-bf-orig',orig);
+      btn.textContent='Copied!';
+      clearTimeout(btn._bfT);
+      btn._bfT=setTimeout(function(){btn.textContent=orig;},1600);
+    }
+    if(live){live.textContent='';setTimeout(function(){live.textContent='Copied code BF10';},30);}
+  }
+  function copyText(code,btn){
+    function ok(){confirmCopy(btn);}
+    function fallback(){
+      var ta=document.createElement('textarea');
+      ta.value=code;ta.setAttribute('readonly','');
+      ta.style.cssText='position:fixed;left:-9999px;top:0';
+      document.body.appendChild(ta);ta.select();
+      try{if(document.execCommand('copy'))ok();}catch(e){}
+      ta.remove();
+    }
+    if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(code).then(ok).catch(fallback);
+    else fallback();
+  }
+  document.querySelectorAll('[data-bf-copy]').forEach(function(btn){
+    btn.addEventListener('click',function(){copyText(btn.getAttribute('data-bf-copy')||'BF10',btn);});
+  });
+})();
+</script></body></html>

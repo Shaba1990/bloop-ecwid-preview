@@ -175,7 +175,7 @@ div[class*="ec-footer"]{display:none!important;visibility:hidden!important;heigh
    Remove this entire block together with the matching
    "BLACK FRIDAY PROMO" markup and script in index.html
    (and the Bodoni Moda font link in that file's <head>).
-   Coupon BF10 is display-only; it is created in Ecwid.
+   Coupon BF15 is display-only; it is created in Ecwid.
    ============================================================ */
 .bf-bar{
   display:none;

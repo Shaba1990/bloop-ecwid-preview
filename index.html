@@ -28,17 +28,17 @@
 </head>
 <body data-page="home"><main class="w">
 <!-- ========== BLACK FRIDAY PROMO (temporary) ==========
-     Display only — the owner creates coupon BF10 in Ecwid.
+     Display only — the owner creates coupon BF15 in Ecwid.
      To remove: delete this whole comment through the matching END comment
      (bar, banner, and the script at the bottom of this file), the Bodoni
      font link in <head>, and the "BLACK FRIDAY PROMO" block at the bottom
      of assets/style.css.
      ===================================================== -->
 <div class="bf-bar" id="bf-bar">
-  <p class="bf-bar-text"><span class="bf-bar-shine">BLACK FRIDAY: 10% OFF EVERYTHING <span class="bf-bar-nowrap">with code <button type="button" class="bf-bar-code" data-bf-copy="BF10" aria-label="Copy discount code BF10">BF10</button></span></span></p>
+  <p class="bf-bar-text"><span class="bf-bar-shine">BLACK FRIDAY: 15% OFF EVERYTHING <span class="bf-bar-nowrap">with code <button type="button" class="bf-bar-code" data-bf-copy="BF15" aria-label="Copy discount code BF15">BF15</button></span></span></p>
   <button type="button" class="bf-bar-x" aria-label="Dismiss Black Friday announcement">&times;</button>
 </div>
-<section class="bf-promo" aria-label="Black Friday — 10% off all products">
+<section class="bf-promo" aria-label="Black Friday — 15% off all products">
   <svg class="bf-ribbon bf-ribbon-l" viewBox="0 0 160 520" aria-hidden="true" focusable="false">
     <defs>
       <linearGradient id="bfRib" x1="0" y1="0" x2="1" y2="0">
@@ -95,11 +95,11 @@
     </div>
     <h2 class="bf-title"><span>BLACK</span><span>FRIDAY</span></h2>
     <p class="bf-limited"><i aria-hidden="true"></i><span>Limited time only</span><i aria-hidden="true"></i></p>
-    <button type="button" class="bf-code" data-bf-copy="BF10" aria-label="Copy discount code BF10">
-      <span data-bf-label>CODE: BF10</span>
+    <button type="button" class="bf-code" data-bf-copy="BF15" aria-label="Copy discount code BF15">
+      <span data-bf-label>CODE: BF15</span>
       <span data-bf-note hidden>Copied!</span>
     </button>
-    <p class="bf-off-wrap"><span class="bf-stroke" aria-hidden="true"></span><span class="bf-off">10% OFF</span></p>
+    <p class="bf-off-wrap"><span class="bf-stroke" aria-hidden="true"></span><span class="bf-off">15% OFF</span></p>
     <p class="bf-all">All products</p>
     <a class="bf-cta" href="shop.html">Shop now</a>
     <p class="bf-live" id="bf-live" role="status" aria-live="polite"></p>
@@ -129,7 +129,7 @@
 <!-- BLACK FRIDAY PROMO script: remove with the promo block above and the CSS block in assets/style.css -->
 <script>
 (function(){
-  var KEY='bloop-bf10-bar';
+  var KEY='bloop-bf15-bar';
   var bar=document.getElementById('bf-bar');
   if(bar){
     var dismissed=false;
@@ -160,7 +160,7 @@
       clearTimeout(btn._bfT);
       btn._bfT=setTimeout(function(){btn.textContent=orig;},1600);
     }
-    if(live){live.textContent='';setTimeout(function(){live.textContent='Copied code BF10';},30);}
+    if(live){live.textContent='';setTimeout(function(){live.textContent='Copied code BF15';},30);}
   }
   function copyText(code,btn){
     function ok(){confirmCopy(btn);}
@@ -176,7 +176,7 @@
     else fallback();
   }
   document.querySelectorAll('[data-bf-copy]').forEach(function(btn){
-    btn.addEventListener('click',function(){copyText(btn.getAttribute('data-bf-copy')||'BF10',btn);});
+    btn.addEventListener('click',function(){copyText(btn.getAttribute('data-bf-copy')||'BF15',btn);});
   });
 })();
 </script></body></html>
